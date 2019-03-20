@@ -1,0 +1,26 @@
+tests:
+  - description: 'Homepage'
+    request:
+      path: '/'
+    response:
+      status: 200
+      headers:
+        match:
+          - abc: 'def'
+        pattern:
+          - abc: 'a.*'
+        exclude:
+          - abc: 'a.*'
+
+  - description: 'favicon'
+    request:
+      path: '/favicon.ico'
+    response:
+      status: 404
+      headers:
+        match:
+          - abc: 'def'
+        pattern:
+          - abc: 'a.*'
+        exclude:
+          - abc: 'a.*'
