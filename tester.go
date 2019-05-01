@@ -21,3 +21,52 @@
 // SOFTWARE.
 
 package main
+
+import (
+	"fmt"
+	"net/http"
+	"path"
+)
+
+// RunTest runs single test
+func RunTest(test *Test, defaultAddress string) error {
+	scheme := stringValue(test.Request.Scheme, "https")
+	address := stringValue(test.Request.Address, defaultAddress)
+	if len(address) == 0 {
+		return fmt.Errorf("no address specified for test %s, %s", test.Request.Path, test.Description)
+	}
+	method := stringValue(test.Request.Method, "GET")
+
+	url := scheme + "://" + address + path.Join("/", test.Request.Path)
+
+	reqConfig := &HTTPRequestConfig{
+		Method:         method,
+		URL:            url,
+		Headers:        test.Request.Headers,
+		Attempts:       1,
+		TimeoutSeconds: 5,
+	}
+
+	resp, _, err := SendHTTPRequest(reqConfig)
+	if err != nil {
+		return err
+	}
+
+	return validateResponse(test, resp)
+}
+
+func validateResponse(test *Test, response *http.Response) error {
+	tr := test.Response
+	if tr.Status != 0 && tr.Status != response.StatusCode {
+		return fmt.Errorf("unexpected status code. expecting %d, got %d", response.StatusCode, tr.Status)
+	}
+
+	return nil
+}
+
+func stringValue(val, defaultVal string) string {
+	if len(val) > 0 {
+		return val
+	}
+	return defaultVal
+}

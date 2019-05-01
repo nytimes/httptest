@@ -23,7 +23,9 @@
 package main
 
 import (
+	"log"
 	"os"
+	"strconv"
 )
 
 var (
@@ -39,13 +41,32 @@ var (
 
 // Config stores application configuration
 type Config struct {
-	TestHostname string
+	Concurrency          int
+	DefaultAddress       string
+	PrintSuccessfulTests bool
 }
 
 // FromEnv returns config read from environment variables
 func FromEnv() *Config {
+	// Parse non-string values
+	concurrency, err := strconv.Atoi(getEnv("TEST_CONCURRENCY", "2"))
+	if err != nil {
+		log.Fatalf("invalid concurrency value: %s", err)
+	}
+
+	if concurrency < 0 {
+		log.Fatalf("invalid concurrency value: %d", concurrency)
+	}
+
+	printSuccessfulTests := true
+	if getEnv("TEST_PRINT_SUCCESSFUL_TESTS", "true") == "false" {
+		printSuccessfulTests = false
+	}
+
 	return &Config{
-		TestHostname: getEnv("TEST_HOSTNAME", ""),
+		Concurrency:          concurrency,
+		DefaultAddress:       getEnv("TEST_DEFAULT_ADDRESS", ""),
+		PrintSuccessfulTests: printSuccessfulTests,
 	}
 }
 

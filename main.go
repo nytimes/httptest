@@ -22,9 +22,11 @@
 
 package main
 
-import "fmt"
+import "os"
 
 func main() {
-	tests := parseAllTestConfigsInDirectory("/Users/207920/go/src/github.com/blupig/httptest/tests")
-	fmt.Printf("%#v\n", tests)
+	config := FromEnv()
+	tests := ParseAllTestConfigsInDirectory("/Users/207920/go/src/github.com/blupig/httptest/tests")
+	status := RunTests(tests, config)
+	os.Exit(status)
 }
