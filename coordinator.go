@@ -28,7 +28,7 @@ import (
 )
 
 // RunTests runs all tests
-func RunTests(tests []*Test, config *Config) int {
+func RunTests(tests []*Test, config *Config) bool {
 	mux := sync.Mutex{}
 	sem := make(chan byte, config.Concurrency)
 
@@ -68,7 +68,7 @@ func RunTests(tests []*Test, config *Config) int {
 
 	fmt.Printf("\n%d/%d tests passed\n", passed, passed+failed)
 	if failed > 0 {
-		return 1
+		return false
 	}
-	return 0
+	return true
 }

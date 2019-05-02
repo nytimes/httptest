@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2019 Yunzhu Li
+// Copyright (c) 2018 Yunzhu Li
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,23 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 )
 
-func main() {
-	config := FromEnv()
-	if err := applyGlobalConfig(config); err != nil {
-		log.Fatalf("error: failed to apply config: %s", err)
+// AppendHostsFile appends a string to /etc/hosts as a new line
+func AppendHostsFile(content string) error {
+	f, err := os.OpenFile("/etc/hosts", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
 	}
 
-	tests := ParseAllTestConfigsInDirectory("tests")
-	if !RunTests(tests, config) {
-		os.Exit(1)
+	if _, err := f.Write([]byte(fmt.Sprintf("\n%s\n", content))); err != nil {
+		return err
 	}
 
-	os.Exit(0)
-}
-
-func applyGlobalConfig(config *Config) error {
-	if len(config.DNSOverride) > 0 {
-		if len(config.DefaultAddress) < 1 {
-			return fmt.Errorf("default address required to use DNS override")
-		}
-		return AppendHostsFile(fmt.Sprintf("%s %s", config.DefaultAddress, config.DNSOverride))
+	if err := f.Close(); err != nil {
+		return err
 	}
+
 	return nil
 }
