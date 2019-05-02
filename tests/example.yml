@@ -30,6 +30,10 @@ tests:
   #     status: 404
 
   - description: 'baidu hp'
+    envFilter:
+      - TEST_ENV:
+        - dev
+        - stg
     request:
       address: 'www.baidu.com'
       path: '/'
