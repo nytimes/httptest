@@ -22,11 +22,13 @@
 
 package main
 
-import "os"
+import (
+	"os"
+)
 
 func main() {
 	config := FromEnv()
-	tests := ParseAllTestConfigsInDirectory("/Users/207920/go/src/github.com/blupig/httptest/tests")
+	tests := ParseAllTestConfigsInDirectory("tests")
 	status := RunTests(tests, config)
 	os.Exit(status)
 }

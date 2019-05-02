@@ -28,9 +28,9 @@ import (
 )
 
 // RunTests runs all tests
-func RunTests(tests []*Test, globalConfig *Config) int {
+func RunTests(tests []*Test, config *Config) int {
 	mux := sync.Mutex{}
-	sem := make(chan byte, globalConfig.Concurrency)
+	sem := make(chan byte, config.Concurrency)
 
 	passed, failed := 0, 0
 
@@ -42,18 +42,17 @@ func RunTests(tests []*Test, globalConfig *Config) int {
 			// Release a slot
 			defer func() { <-sem }()
 
-			testInfoString := fmt.Sprintf("%s | %s", t.Description, t.Request.Path)
-			fmt.Println(testInfoString)
-
-			err := RunTest(t, globalConfig.DefaultAddress)
+			err := RunTest(t, config.DefaultAddress)
 
 			// Acquire lock before accessing shared variables and writing output
+			// Code in critical section should not perform network I/O
 			mux.Lock()
+			testInfoString := GenerateTestInfoString(t)
 			if err != nil {
 				failed++
-				fmt.Printf("failed: %s\n %s\n\n", testInfoString, err)
+				fmt.Printf("failed: %s\n%s\n\n", testInfoString, err)
 			} else {
-				if globalConfig.PrintSuccessfulTests {
+				if config.PrintSuccessfulTests {
 					fmt.Printf("passed: %s\n", testInfoString)
 				}
 				passed++
@@ -62,11 +61,12 @@ func RunTests(tests []*Test, globalConfig *Config) int {
 		}(test)
 	}
 
+	// Wait for all goroutines to finish
 	for i := 0; i < cap(sem); i++ {
 		sem <- 0
 	}
 
-	fmt.Printf("\ntests finished, %d/%d passed\n", passed, passed+failed)
+	fmt.Printf("\n%d/%d tests passed\n", passed, passed+failed)
 	if failed > 0 {
 		return 1
 	}

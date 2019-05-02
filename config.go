@@ -54,7 +54,7 @@ func FromEnv() *Config {
 		log.Fatalf("invalid concurrency value: %s", err)
 	}
 
-	if concurrency < 0 {
+	if concurrency < 1 {
 		log.Fatalf("invalid concurrency value: %d", concurrency)
 	}
 

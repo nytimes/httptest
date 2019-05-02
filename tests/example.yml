@@ -5,8 +5,6 @@ tests:
   #   response:
   #     status: 200
   #     headers:
-  #       match:
-  #         - abc: 'def'
   #       pattern:
   #         - abc: 'a.*'
   #       exclude:
@@ -31,51 +29,20 @@ tests:
   #   response:
   #     status: 404
 
-  - description: 'hp'
+  - description: 'baidu hp'
     request:
-      path: '/'
-    response:
-
-  - description: 'hp'
-    request:
+      address: 'www.baidu.com'
       path: '/'
     response:
       status: 200
-
-  - description: 'hp'
-    request:
-      path: '/'
-    response:
-      status: 200
-
-  - description: 'hp'
-    request:
-      path: '/'
-    response:
-      status: 200
-
-  - description: 'hp'
-    request:
-      path: '/'
-    response:
-      status: 200
-
-  - description: 'hp'
-    request:
-      path: '/'
-    response:
-
-  - description: 'hp'
-    request:
-      path: '/'
-    response:
-      status: 200
-
-  - description: 'hp'
-    request:
-      path: '/'
-    response:
-      status: 200
+      headers:
+        patterns:
+          server: '^BWS'
+        exclude:
+          - 'abcdefg'
+      body:
+        patterns:
+          - '14px.*?"宋体"'
 
   - description: 'hp'
     request:

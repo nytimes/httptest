@@ -40,19 +40,22 @@ type TestConfig struct {
 type Test struct {
 	Description string
 	Request     struct {
-		Scheme   string            `yaml:"scheme"`
-		Address  string            `yaml:"address"`
-		Method   string            `yaml:"method"`
-		Path     string            `yaml:"path"`
-		Headers  map[string]string `yaml:"headers"`
+		Scheme  string            `yaml:"scheme"`
+		Address string            `yaml:"address"`
+		Method  string            `yaml:"method"`
+		Path    string            `yaml:"path"`
+		Headers map[string]string `yaml:"headers"`
+		Body    string            `yaml:"body"`
 	} `yaml:"request"`
 	Response struct {
 		Status  int `yaml:"status"`
 		Headers struct {
-			Match   []map[string]string `yaml:"match"`
-			Pattern []map[string]string `yaml:"pattern"`
-			Exclude []map[string]string `yaml:"exclude"`
+			Patterns map[string]string `yaml:"patterns"`
+			Exclude  []string          `yaml:"exclude"`
 		} `yaml:"headers"`
+		Body struct {
+			Patterns []string `yaml:"patterns"`
+		}
 	} `yaml:"response"`
 }
 
@@ -61,6 +64,10 @@ func ParseAllTestConfigsInDirectory(root string) []*Test {
 	files := []string{}
 
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Fatalf("error: %s", err)
+		}
+
 		// Skip directories
 		if info.IsDir() {
 			return nil
