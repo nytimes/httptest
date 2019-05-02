@@ -42,7 +42,7 @@ func RunTests(tests []*Test, config *Config) bool {
 			// Release a slot
 			defer func() { <-sem }()
 
-			err := RunTest(t, config.DefaultAddress)
+			err := RunTest(t, config.Host)
 
 			// Acquire lock before accessing shared variables and writing output
 			// Code in critical section should not perform network I/O

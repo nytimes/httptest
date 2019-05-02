@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path"
 	"regexp"
 	"strings"
@@ -37,12 +38,21 @@ func GenerateTestInfoString(test *Test) string {
 }
 
 // RunTest runs single test
-func RunTest(test *Test, defaultAddress string) error {
-	if err := preProcessTest(test, defaultAddress); err != nil {
+func RunTest(test *Test, defaultHost string) error {
+	if err := preProcessTest(test, defaultHost); err != nil {
 		return err
 	}
 
-	url := test.Request.Scheme + "://" + test.Request.Address + path.Join("/", test.Request.Path)
+	conditionsMet, err := validateConditions(test)
+	if err != nil {
+		return err
+	}
+	if !conditionsMet {
+		// Skip test
+		return nil
+	}
+
+	url := test.Request.Scheme + "://" + test.Request.Host + path.Join("/", test.Request.Path)
 
 	var body io.Reader
 	if len(test.Request.Body) > 0 {
@@ -66,7 +76,7 @@ func RunTest(test *Test, defaultAddress string) error {
 	return validateResponse(test, resp, respBody)
 }
 
-func preProcessTest(test *Test, defaultAddress string) error {
+func preProcessTest(test *Test, defaultHost string) error {
 	// Scheme
 	scheme := stringValue(test.Request.Scheme, "https")
 	if scheme != "http" && scheme != "https" {
@@ -74,12 +84,12 @@ func preProcessTest(test *Test, defaultAddress string) error {
 	}
 	test.Request.Scheme = scheme
 
-	// Address
-	address := stringValue(test.Request.Address, defaultAddress)
-	if len(address) == 0 {
-		return fmt.Errorf("no address specified for test %s, %s", test.Request.Path, test.Description)
+	// Host
+	host := stringValue(test.Request.Host, defaultHost)
+	if len(host) == 0 {
+		return fmt.Errorf("no host specified for this test and no default host set")
 	}
-	test.Request.Address = address
+	test.Request.Host = host
 
 	// Method
 	method := stringValue(test.Request.Method, "GET")
@@ -103,6 +113,22 @@ func stringValue(val, defaultVal string) string {
 	return defaultVal
 }
 
+func validateConditions(test *Test) (bool, error) {
+	// Environment variable
+	for key, pattern := range test.Conditions.Env {
+		re, err := regexp.Compile("(?i)" + pattern)
+		if err != nil {
+			return false, fmt.Errorf("%s", err.Error())
+		}
+
+		if !re.MatchString(os.Getenv(key)) {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func validateResponse(test *Test, response *http.Response, body []byte) error {
 	if err := validateResponseStatus(test, response); err != nil {
 		return err
@@ -121,8 +147,10 @@ func validateResponse(test *Test, response *http.Response, body []byte) error {
 
 func validateResponseStatus(test *Test, response *http.Response) error {
 	expected := test.Response
-	if expected.Status != 0 && expected.Status != response.StatusCode {
-		return fmt.Errorf("unexpected status code. expecting %d, got %d", expected.Status, response.StatusCode)
+	for _, code := range expected.StatusCodes {
+		if code != response.StatusCode {
+			return fmt.Errorf("unexpected status code. expected %v, got %d", expected.StatusCodes, response.StatusCode)
+		}
 	}
 	return nil
 }
@@ -144,11 +172,11 @@ func validateResponseHeaders(test *Test, response *http.Response) error {
 		}
 	}
 
-	// Exclusions
-	exclusions := expectedResponse.Headers.Exclude
-	for _, exclusion := range exclusions {
-		if len(response.Header.Get(exclusion)) > 0 {
-			return fmt.Errorf("found unexpected response header \"%s\"", exclusion)
+	// NotPresent assertions
+	npAssertions := expectedResponse.Headers.NotPresent
+	for _, header := range npAssertions {
+		if len(response.Header.Get(header)) > 0 {
+			return fmt.Errorf("found unexpected response header \"%s\"", header)
 		}
 	}
 

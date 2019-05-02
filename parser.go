@@ -39,19 +39,22 @@ type TestConfig struct {
 // Test is a single test
 type Test struct {
 	Description string
-	Request     struct {
+	Conditions  struct {
+		Env map[string]string `yaml:"env"`
+	} `yaml:"conditions"`
+	Request struct {
 		Scheme  string            `yaml:"scheme"`
-		Address string            `yaml:"address"`
+		Host    string            `yaml:"host"`
 		Method  string            `yaml:"method"`
 		Path    string            `yaml:"path"`
 		Headers map[string]string `yaml:"headers"`
 		Body    string            `yaml:"body"`
 	} `yaml:"request"`
 	Response struct {
-		Status  int `yaml:"status"`
-		Headers struct {
-			Patterns map[string]string `yaml:"patterns"`
-			Exclude  []string          `yaml:"exclude"`
+		StatusCodes []int `yaml:"statusCodes"`
+		Headers     struct {
+			Patterns   map[string]string `yaml:"patterns"`
+			NotPresent []string          `yaml:"notPresent"`
 		} `yaml:"headers"`
 		Body struct {
 			Patterns []string `yaml:"patterns"`

@@ -44,10 +44,10 @@ func main() {
 
 func applyGlobalConfig(config *Config) error {
 	if len(config.DNSOverride) > 0 {
-		if len(config.DefaultAddress) < 1 {
+		if len(config.Host) < 1 {
 			return fmt.Errorf("default address required to use DNS override")
 		}
-		return AppendHostsFile(fmt.Sprintf("%s %s", config.DNSOverride, config.DefaultAddress))
+		return AppendHostsFile(fmt.Sprintf("%s %s", config.DNSOverride, config.Host))
 	}
 	return nil
 }

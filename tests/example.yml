@@ -1,44 +1,13 @@
 tests:
-  # - description: 'Homepage'
-  #   request:
-  #     path: '/'
-  #   response:
-  #     status: 200
-  #     headers:
-  #       pattern:
-  #         - abc: 'a.*'
-  #       exclude:
-  #         - abc: 'a.*'
-
-  # - description: 'favicon'
-  #   request:
-  #     path: '/favicon.ico'
-  #   response:
-  #     status: 403
-  #     headers:
-  #       match:
-  #         - abc: 'def'
-  #       pattern:
-  #         - abc: 'a.*'
-  #       exclude:
-  #         - abc: 'a.*'
-
-  # - description: 'abc123'
-  #   request:
-  #     path: '/aa'
-  #   response:
-  #     status: 404
-
   - description: 'baidu hp'
-    envFilter:
-      - TEST_ENV:
-        - dev
-        - stg
+    conditions:
+      env:
+        TEST_ENV: '^(stg|prd)$'
     request:
       address: 'www.baidu.com'
       path: '/'
     response:
-      status: 200
+      statusCodes: [201]
       headers:
         patterns:
           server: '^BWS'
@@ -49,13 +18,16 @@ tests:
           - '14px.*?"宋体"'
 
   - description: 'hp'
+    conditions:
+      env:
+        TEST_ENV: '^(stg|prd)$'
     request:
       path: '/'
     response:
-      status: 200
+      statusCodes: [201]
 
   - description: 'hp'
     request:
       path: '/'
     response:
-      status: 200
+      statusCodes: [200]

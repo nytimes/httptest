@@ -42,7 +42,7 @@ var (
 // Config stores application configuration
 type Config struct {
 	Concurrency          int
-	DefaultAddress       string
+	Host                 string
 	DNSOverride          string
 	PrintSuccessfulTests bool
 }
@@ -66,7 +66,7 @@ func FromEnv() *Config {
 
 	return &Config{
 		Concurrency:          concurrency,
-		DefaultAddress:       getEnv("TEST_DEFAULT_ADDRESS", ""),
+		Host:                 getEnv("TEST_HOST", ""),
 		DNSOverride:          getEnv("TEST_DNS_OVERRIDE", ""),
 		PrintSuccessfulTests: printSuccessfulTests,
 	}
