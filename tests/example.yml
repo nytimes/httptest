@@ -11,7 +11,7 @@ tests:
       headers:
         patterns:
           server: '^BWS'
-        exclude:
+        notPresent:
           - 'abcdefg'
       body:
         patterns:
