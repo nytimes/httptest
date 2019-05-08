@@ -20,12 +20,13 @@ action "docker-publish-dev" {
 }
 
 action "branch-master" {
+  needs = ["docker-publish-dev"]
   uses = "actions/bin/filter@master"
   args = "branch master"
 }
 
 action "docker-tag-latest" {
-  needs = ["branch-master", "docker-publish-dev"]
+  needs = ["branch-master"]
   uses = "actions/docker/cli@master"
   args = "tag blupig/httptest:dev blupig/httptest"
 }
