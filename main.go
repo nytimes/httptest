@@ -44,26 +44,24 @@ func main() {
 	fmt.Printf("httptest: %s %s %s\n\n", BuildCommit, BuildBranch, BuildTime)
 
 	// Get and apply config
-	config := FromEnv()
-	if err := applyGlobalConfig(config); err != nil {
+	config, err := FromEnv()
+	if err != nil {
+		log.Fatalf("error: failed to parse config: %s", err)
+	}
+
+	if err := ApplyConfig(config); err != nil {
 		log.Fatalf("error: failed to apply config: %s", err)
 	}
 
 	// Parse and run tests
-	tests := ParseAllTestsInDirectory("tests")
+	tests, err := ParseAllTestsInDirectory("tests")
+	if err != nil {
+		log.Fatalf("error: failed to parse tests: %s", err)
+	}
+
 	if !RunTests(tests, config) {
 		os.Exit(1)
 	}
 
 	os.Exit(0)
-}
-
-func applyGlobalConfig(config *Config) error {
-	if len(config.DNSOverride) > 0 {
-		if len(config.Host) < 1 {
-			return fmt.Errorf("TEST_HOST is required to use DNS override")
-		}
-		return AppendHostsFile(fmt.Sprintf("%s %s", config.DNSOverride, config.Host))
-	}
-	return nil
 }

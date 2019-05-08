@@ -23,7 +23,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"strconv"
 )
@@ -37,14 +37,14 @@ type Config struct {
 }
 
 // FromEnv returns config read from environment variables
-func FromEnv() *Config {
+func FromEnv() (*Config, error) {
 	// Parse non-string values
 	concurrency, err := strconv.Atoi(getEnv("TEST_CONCURRENCY", "2"))
 	if err != nil {
-		log.Fatalf("invalid concurrency value: %s", err)
+		return nil, fmt.Errorf("invalid concurrency value: %s", err)
 	}
 	if concurrency < 1 {
-		log.Fatalf("invalid concurrency value: %d", concurrency)
+		return nil, fmt.Errorf("invalid concurrency value: %d", concurrency)
 	}
 
 	printFailedOnly := false
@@ -57,7 +57,18 @@ func FromEnv() *Config {
 		Host:                 getEnv("TEST_HOST", ""),
 		DNSOverride:          getEnv("TEST_DNS_OVERRIDE", ""),
 		PrintFailedTestsOnly: printFailedOnly,
+	}, nil
+}
+
+// ApplyConfig applies config
+func ApplyConfig(config *Config) error {
+	if len(config.DNSOverride) > 0 {
+		if len(config.Host) < 1 {
+			return fmt.Errorf("TEST_HOST is required to use DNS override")
+		}
+		return AppendHostsFile(fmt.Sprintf("%s %s", config.DNSOverride, config.Host))
 	}
+	return nil
 }
 
 // Read environment variable with default values
