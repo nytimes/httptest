@@ -31,7 +31,7 @@ action "docker-tag-latest" {
 }
 
 action "docker-publish-latest" {
-  needs = ["docker-auth", "docker-build"]
+  needs = ["docker-tag-latest"]
   uses = "actions/docker/cli@master"
   args = ["push blupig/httptest"]
 }
