@@ -14,9 +14,9 @@ ARG BUILD_COMMIT
 # Build application
 RUN go build -a -o /go/bin/httptest \
     -ldflags "-extldflags \"-static\" \
-              -X github.com/blupig/httptest/main.BuildBranch=${BUILD_BRANCH} \
-              -X github.com/blupig/httptest/main.BuildCommit=${BUILD_COMMIT:0:8} \
-              -X github.com/blupig/httptest/main.BuildTime=$(date -Iseconds)"
+              -X main.BuildBranch=${BUILD_BRANCH} \
+              -X main.BuildCommit=${BUILD_COMMIT:0:8} \
+              -X main.BuildTime=$(date -Iseconds)"
 
 # Minimum runtime container
 FROM alpine
