@@ -1,0 +1,90 @@
+# Tests on httpbin.org
+tests:
+  - description: 'HTTP GET'
+    request:
+      path: '/get'
+    response:
+      statusCodes: [200]
+      headers:
+        patterns:
+          access-control-allow-origin: '.+'
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+
+  - description: 'HTTP POST'
+    request:
+      method: 'POST'
+      path: '/post'
+    response:
+      statusCodes: [200]
+      body:
+        patterns:
+          - 'https://httpbin.org/post'
+
+  - description: 'HTTP PATCH'
+    conditions:
+      env:
+        TEST_ENV: '^(stg|prd)$'
+    request:
+      method: 'PATCH' # Unsupported method
+      path: '/patch'
+    response:
+      statusCodes: [200]
+      body:
+        patterns:
+          - 'https://httpbin.org/patch'
+
+  - description: 'HTTP status code - invalid request'
+    request:
+      path: '/status/a'
+    response:
+      statusCodes: [400]
+
+  - description: 'HTTP status code - 200'
+    request:
+      path: '/status/200'
+    response:
+      statusCodes: [200]
+
+  - description: 'HTTP status code - 300'
+    request:
+      path: '/status/300'
+    response:
+      statusCodes: [300]
+
+  # This test will fail
+  - description: 'HTTP status code - 400'
+    request:
+      path: '/status/400'
+    response:
+      statusCodes: [200, 301, 302]
+      headers:
+        patterns:
+          access-control-allow-origin: 'example.com'
+
+  - description: 'HTTP status code - 500'
+    request:
+      path: '/status/500'
+    response:
+      statusCodes: [500]
+
+  - description: 'echo headers'
+    request:
+      path: '/headers'
+      headers:
+        x-test-0: 'ihlx0u6g3x7e4wg8'
+    response:
+      statusCodes: [200]
+      body:
+        patterns:
+          - 'ihlx0u6g3x7e4wg8'
+
+  - description: 'base64'
+    request:
+      path: '/base64/ZTRxMmplenBreXYxcTNhOQ=='
+    response:
+      statusCodes: [200]
+      body:
+        patterns:
+          - 'e4q2jezpkyv1q3a9'
