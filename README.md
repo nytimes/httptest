@@ -34,9 +34,8 @@ passed:  tests.yaml | root | [/]
 0 failed
 ```
 
-By default, the program parses all files in `$(pwd)/tests/` (in the above
-example, `pwd` is `/` in the container). This can be changed using an
-environment variable.
+By default, the program parses all files in `$(pwd)/tests` recursively.
+This can be changed using an environment variable.
 
 ### Run tests in a CI/CD pipeline
 
@@ -70,18 +69,21 @@ Examples
 
 Environment variables:
 
-- `TEST_HOST`: Host to test. Can be overridden by `request.host` in YAML.
-  At least one of them needs to be specified, otherwise tests will fail.
+- `TEST_DIRECTORY`: Local directory that contains the test definition YAML
+  files. Default: `tests`
 
-- `TEST_CONCURRENCY`: Maximum number of requests can be sent at a time.
+- `TEST_HOST`: Host to test. Can be overridden by `request.host` of individual
+  test definitions. If `TEST_HOST` and `request.host` are both not set, test
+  will fail.
+
+- `TEST_CONCURRENCY`: Maximum number of concurrent requests at a time.
   Default: `2`.
 
 - `TEST_DNS_OVERRIDE`: Override the IP address for `TEST_HOST`. Does not work
   for `request.host` specified in YAML.
 
-- `TEST_PRINT_FAILED_ONLY`: Only print failed tests.
-  Valid values: `false` or `true`. Default: `false`.
-
+- `TEST_PRINT_FAILED_ONLY`: Only print failed tests. Valid values: `false` or
+  `true`. Default: `false`.
 
 ### Full test example
 

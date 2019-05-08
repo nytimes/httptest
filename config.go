@@ -34,6 +34,7 @@ type Config struct {
 	DNSOverride          string
 	Host                 string
 	PrintFailedTestsOnly bool
+	TestDirectory        string
 }
 
 // FromEnv returns config read from environment variables
@@ -57,6 +58,7 @@ func FromEnv() (*Config, error) {
 		Host:                 getEnv("TEST_HOST", ""),
 		DNSOverride:          getEnv("TEST_DNS_OVERRIDE", ""),
 		PrintFailedTestsOnly: printFailedOnly,
+		TestDirectory:        getEnv("TEST_DIRECTORY", "tests"),
 	}, nil
 }
 

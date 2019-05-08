@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Parse and run tests
-	tests, err := ParseAllTestsInDirectory("tests")
+	tests, err := ParseAllTestsInDirectory(config.TestDirectory)
 	if err != nil {
 		log.Fatalf("error: failed to parse tests: %s", err)
 	}
