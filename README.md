@@ -20,7 +20,6 @@ tests:
 
 This program is distributed as a Docker image. To run a container locally:
 ```bash
-# Mount test.yaml under /tests/ in container
 docker run --rm \
     -v $(pwd)/tests.yaml:/tests/tests.yaml \
     -e "TEST_HOST=example.com" \
@@ -36,7 +35,8 @@ passed:  tests.yaml | root | [/]
 ```
 
 By default, the program parses all files in `$(pwd)/tests/` (in the above
-example, `pwd` is `/`). This can be changed using an environment variable.
+example, `pwd` is `/` in the container). This can be changed using an
+environment variable.
 
 ### Run tests in a CI/CD pipeline
 
@@ -65,6 +65,23 @@ Examples
     }
   }
   ```
+
+### Configurations
+
+Environment variables:
+
+- `TEST_HOST`: Host to test. Can be overridden by `request.host` in YAML.
+  At least one of them needs to be specified, otherwise tests will fail.
+
+- `TEST_CONCURRENCY`: Maximum number of requests can be sent at a time.
+  Default: `2`.
+
+- `TEST_DNS_OVERRIDE`: Override the IP address for `TEST_HOST`. Does not work
+  for `request.host` specified in YAML.
+
+- `TEST_PRINT_FAILED_ONLY`: Only print failed tests.
+  Valid values: `false` or `true`. Default: `false`.
+
 
 ### Full test example
 

@@ -23,8 +23,8 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -65,12 +65,15 @@ type Test struct {
 }
 
 // ParseAllTestsInDirectory recursively parses all test definition files in a given directory
-func ParseAllTestsInDirectory(root string) []*Test {
+func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 	files := []string{}
+	var dirWalkError error
 
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Fatalf("error: %s", err)
+			fmt.Printf("error: %s\n", err)
+			dirWalkError = err
+			return nil
 		}
 
 		// Skip directories
@@ -87,24 +90,32 @@ func ParseAllTestsInDirectory(root string) []*Test {
 		return nil
 	})
 
-	tests := []*Test{}
-	for _, p := range files {
-		tests = append(tests, parseTestFile(p)...)
+	if dirWalkError != nil {
+		return nil, dirWalkError
 	}
 
-	return tests
+	allTests := []*Test{}
+	for _, p := range files {
+		tests, err := parseTestFile(p)
+		if err != nil {
+			return nil, err
+		}
+		allTests = append(allTests, tests...)
+	}
+
+	return allTests, nil
 }
 
-func parseTestFile(filePath string) []*Test {
+func parseTestFile(filePath string) ([]*Test, error) {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Fatalf("ioutil: %v", err)
+		return nil, fmt.Errorf("ioutil: %v", err)
 	}
 
 	tf := TestFile{}
 	err = yaml.Unmarshal(data, &tf)
 	if err != nil {
-		log.Fatalf("unable to parse file %s: %v", filePath, err)
+		return nil, fmt.Errorf("unable to parse file %s: %v", filePath, err)
 	}
 
 	// Add file path to tests
@@ -113,5 +124,5 @@ func parseTestFile(filePath string) []*Test {
 		test.Filename = fileName
 	}
 
-	return tf.Tests
+	return tf.Tests, nil
 }
