@@ -24,7 +24,7 @@ This program is distributed as a Docker image. To run a container locally:
 docker run --rm \
     -v $(pwd)/tests.yaml:/tests/tests.yaml \
     -e "TEST_HOST=example.com" \
-    yunzhu/httptest
+    blupig/httptest
 ```
 
 You should see an output similar to this:
@@ -49,7 +49,7 @@ Examples
   ```yaml
   pipeline:
     tests:
-      image: yunzhu/httptest
+      image: blupig/httptest
       pull: true
       environment:
         TEST_HOST: 'example.com'
@@ -59,7 +59,7 @@ Examples
 
   ```hcl
   action "httptest" {
-    uses = "docker://yunzhu/httptest"
+    uses = "docker://blupig/httptest"
     env = {
       TEST_HOST = "example.com"
     }
@@ -73,7 +73,7 @@ Required fields:
 - `description`
 - `request.path`
 
-All other fields are optional.
+All other fields are optional. All matchings are case insensitive.
 
 ```yaml
 tests:
@@ -81,17 +81,23 @@ tests:
     conditions:                  # Specify conditions. Test only runs when all conditions are met
       env:                       # Matches an environment variable
         TEST_ENV: '^(dev|stg)$'  # Environment variable name : regular expression
+
     request:                     # Request to send
       scheme: 'https'            # URL scheme. Only http and https are supported. Default: https
       host: 'example.com'        # Host to test against (this overrides TEST_HOST for this specific test)
       method: 'POST'             # HTTP method. Default: GET
       path: '/'                  # Path to hit. Required
+      headers:                   # Headers
+        x-test-header-0: 'abc'
+        x-test-header-1: 'def'
       body: ''                   # Request body. Processed as string
+
     response:                    # Expected response
       statusCodes: [201]         # List of expected response status codes
       headers:                   # Expected response headers
         patterns:                # Match response header patterns
           server: '^ECS$'        # Header name : regular expression
+          cache-control: '.+'
         notPresent:              # Specify headers not expected to exist.
           - 'set-cookie'         # Not regular expressions
           - 'x-frame-options'
