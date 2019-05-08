@@ -64,7 +64,7 @@ func RunTests(tests []*Test, config *Config) bool {
 			} else {
 				passed++
 				if !config.PrintFailedTestsOnly {
-					fmt.Printf("passed:  %s\n", testInfoString)
+					fmt.Printf("passed: %s\n", testInfoString)
 				}
 			}
 			mux.Unlock()

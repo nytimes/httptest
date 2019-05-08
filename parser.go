@@ -32,8 +32,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// TestConfig is a single test config file
-type TestConfig struct {
+// TestFile is a single test definition file
+type TestFile struct {
 	Tests []*Test `yaml:"tests"`
 }
 
@@ -64,8 +64,8 @@ type Test struct {
 	} `yaml:"response"`
 }
 
-// ParseAllTestConfigsInDirectory recursively parses all test config files in a given directory
-func ParseAllTestConfigsInDirectory(root string) []*Test {
+// ParseAllTestsInDirectory recursively parses all test definition files in a given directory
+func ParseAllTestsInDirectory(root string) []*Test {
 	files := []string{}
 
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -89,29 +89,29 @@ func ParseAllTestConfigsInDirectory(root string) []*Test {
 
 	tests := []*Test{}
 	for _, p := range files {
-		tests = append(tests, parseTestConfig(p)...)
+		tests = append(tests, parseTestFile(p)...)
 	}
 
 	return tests
 }
 
-func parseTestConfig(filePath string) []*Test {
+func parseTestFile(filePath string) []*Test {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("ioutil: %v", err)
 	}
 
-	tc := &TestConfig{}
-	err = yaml.Unmarshal(data, tc)
+	tf := TestFile{}
+	err = yaml.Unmarshal(data, &tf)
 	if err != nil {
 		log.Fatalf("unable to parse file %s: %v", filePath, err)
 	}
 
 	// Add file path to tests
 	fileName := path.Base(filePath)
-	for _, test := range tc.Tests {
+	for _, test := range tf.Tests {
 		test.Filename = fileName
 	}
 
-	return tc.Tests
+	return tf.Tests
 }

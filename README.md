@@ -29,8 +29,10 @@ docker run --rm \
 
 You should see an output similar to this:
 ```
-passed: root | [/]
-1/1 tests passed
+passed:  tests.yaml | root | [/]
+
+1 passed
+0 failed
 ```
 
 By default, the program parses all files in `$(pwd)/tests/` (in the above
@@ -66,11 +68,16 @@ Examples
 
 ### Full test example
 
-Any fields not explicitly stated as required are optional.
+Required fields:
+
+- `description`
+- `request.path`
+
+All other fields are optional.
 
 ```yaml
 tests:
-  - description: 'root'          # Description, will be printed with test results (required)
+  - description: 'root'          # Description, will be printed with test results. Required
     conditions:                  # Specify conditions. Test only runs when all conditions are met
       env:                       # Matches an environment variable
         TEST_ENV: '^(dev|stg)$'  # Environment variable name : regular expression
@@ -78,7 +85,7 @@ tests:
       scheme: 'https'            # URL scheme. Only http and https are supported. Default: https
       host: 'example.com'        # Host to test against (this overrides TEST_HOST for this specific test)
       method: 'POST'             # HTTP method. Default: GET
-      path: '/'                  # Path to hit. Default: /
+      path: '/'                  # Path to hit. Required
       body: ''                   # Request body. Processed as string
     response:                    # Expected response
       statusCodes: [201]         # List of expected response status codes

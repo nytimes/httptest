@@ -165,8 +165,8 @@ func validateResponseStatus(test *Test, response *http.Response) []error {
 		}
 	}
 
-	if !matched {
-		errors = append(errors, fmt.Errorf("unexpected status code. expected %v, got %d", expected.StatusCodes, response.StatusCode))
+	if !matched && len(expected.StatusCodes) > 0 {
+		errors = append(errors, fmt.Errorf("unexpected status code - expected %v, got %d", expected.StatusCodes, response.StatusCode))
 	}
 
 	return errors
@@ -187,7 +187,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 
 		value := strings.ToLower(response.Header.Get(header))
 		if !re.MatchString(value) {
-			errors = append(errors, fmt.Errorf("the value of response header \"%s: %s\" does not match pattern \"%s\"", header, value, pattern))
+			errors = append(errors, fmt.Errorf("response header \"%s\" has value \"%s\", does not match pattern \"%s\"", header, value, pattern))
 		}
 	}
 

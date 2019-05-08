@@ -28,13 +28,29 @@ import (
 	"os"
 )
 
+var (
+	// BuildBranch is the branch of the source the binary built from
+	BuildBranch string
+
+	// BuildCommit is the commit hash
+	BuildCommit string
+
+	// BuildTime is the build time
+	BuildTime string
+)
+
 func main() {
+	// Print version info
+	fmt.Printf("httptest: %s %s %s\n\n", BuildCommit, BuildBranch, BuildTime)
+
+	// Get and apply config
 	config := FromEnv()
 	if err := applyGlobalConfig(config); err != nil {
 		log.Fatalf("error: failed to apply config: %s", err)
 	}
 
-	tests := ParseAllTestConfigsInDirectory("tests")
+	// Parse and run tests
+	tests := ParseAllTestsInDirectory("tests")
 	if !RunTests(tests, config) {
 		os.Exit(1)
 	}

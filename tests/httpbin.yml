@@ -1,3 +1,4 @@
+# Tests on httpbin.org
 tests:
   - description: 'HTTP GET'
     request:
@@ -58,6 +59,9 @@ tests:
       path: '/status/400'
     response:
       statusCodes: [200, 301, 302]
+      headers:
+        patterns:
+          access-control-allow-origin: 'example.com'
 
   - description: 'HTTP status code - 500'
     request:

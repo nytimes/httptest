@@ -28,17 +28,6 @@ import (
 	"strconv"
 )
 
-var (
-	// BuildBranch is the branch of the source the binary built from
-	BuildBranch string
-
-	// BuildCommit is the commit hash
-	BuildCommit string
-
-	// BuildTime is the build time
-	BuildTime string
-)
-
 // Config stores application configuration
 type Config struct {
 	Concurrency          int
