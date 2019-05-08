@@ -20,9 +20,10 @@ tests:
 
 This program is distributed as a Docker image. To run a container locally:
 ```bash
+# Mount test.yaml under /tests/ in container
 docker run --rm \
-    -v $(pwd)/tests.yaml:/tests/tests.yaml \ # Mount test.yaml under /tests/ in container
-    -e "TEST_HOST=example.com" \             # Specify hostname to test against
+    -v $(pwd)/tests.yaml:/tests/tests.yaml \
+    -e "TEST_HOST=example.com" \
     yunzhu/httptest
 ```
 
@@ -83,12 +84,14 @@ tests:
       statusCodes: [201]         # List of expected response status codes
       headers:                   # Expected response headers
         patterns:                # Match response header patterns
-          server: '^BWS'         # Header name : regular expression
+          server: '^ECS$'        # Header name : regular expression
         notPresent:              # Specify headers not expected to exist.
-          - 'abcdefg'
+          - 'set-cookie'         # Not regular expressions
+          - 'x-frame-options'
       body:                      # Response body
         patterns:                # Response body has to match all patterns in this list in order to pass test
-          - '14px.*?"宋体"'
+          - 'charset="utf-8"'    # Regular expressions
+          - 'Example Domain'
 
   - description: 'sign up page'  # Second test
     request:

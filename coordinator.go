@@ -29,33 +29,43 @@ import (
 
 // RunTests runs all tests
 func RunTests(tests []*Test, config *Config) bool {
-	mux := sync.Mutex{}
 	sem := make(chan byte, config.Concurrency)
+	mux := sync.Mutex{}
 
-	passed, failed := 0, 0
+	passed, failed, skipped := 0, 0, 0
 
 	for _, test := range tests {
 		// Attempt to take a slot
 		sem <- 0
 
 		go func(t *Test) {
-			// Release a slot
+			// Release a slot when done
 			defer func() { <-sem }()
 
-			err := RunTest(t, config.Host)
+			result := RunTest(t, config.Host)
 
 			// Acquire lock before accessing shared variables and writing output
 			// Code in critical section should not perform network I/O
 			mux.Lock()
 			testInfoString := GenerateTestInfoString(t)
-			if err != nil {
-				failed++
-				fmt.Printf("failed: %s\n%s\n\n", testInfoString, err)
-			} else {
-				if config.PrintSuccessfulTests {
-					fmt.Printf("passed: %s\n", testInfoString)
+
+			if result.skipped {
+				skipped++
+				if !config.PrintFailedTestsOnly {
+					fmt.Printf("skipped: %s\n", testInfoString)
 				}
+			} else if len(result.errors) > 0 {
+				failed++
+				fmt.Printf("failed: %s\n", testInfoString)
+				for _, err := range result.errors {
+					fmt.Printf("%s\n", err.Error())
+				}
+				fmt.Println("")
+			} else {
 				passed++
+				if !config.PrintFailedTestsOnly {
+					fmt.Printf("passed:  %s\n", testInfoString)
+				}
 			}
 			mux.Unlock()
 		}(test)
@@ -66,7 +76,12 @@ func RunTests(tests []*Test, config *Config) bool {
 		sem <- 0
 	}
 
-	fmt.Printf("\n%d/%d tests passed\n", passed, passed+failed)
+	fmt.Printf("\n%d passed\n", passed)
+	fmt.Printf("%d failed\n", failed)
+	if skipped > 0 {
+		fmt.Printf("%d skipped\n", skipped)
+	}
+
 	if failed > 0 {
 		return false
 	}

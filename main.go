@@ -45,7 +45,7 @@ func main() {
 func applyGlobalConfig(config *Config) error {
 	if len(config.DNSOverride) > 0 {
 		if len(config.Host) < 1 {
-			return fmt.Errorf("default address required to use DNS override")
+			return fmt.Errorf("TEST_HOST is required to use DNS override")
 		}
 		return AppendHostsFile(fmt.Sprintf("%s %s", config.DNSOverride, config.Host))
 	}

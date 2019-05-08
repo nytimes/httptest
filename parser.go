@@ -26,6 +26,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
@@ -38,6 +39,7 @@ type TestConfig struct {
 
 // Test is a single test
 type Test struct {
+	Filename    string
 	Description string
 	Conditions  struct {
 		Env map[string]string `yaml:"env"`
@@ -93,8 +95,8 @@ func ParseAllTestConfigsInDirectory(root string) []*Test {
 	return tests
 }
 
-func parseTestConfig(path string) []*Test {
-	data, err := ioutil.ReadFile(path)
+func parseTestConfig(filePath string) []*Test {
+	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Fatalf("ioutil: %v", err)
 	}
@@ -102,7 +104,14 @@ func parseTestConfig(path string) []*Test {
 	tc := &TestConfig{}
 	err = yaml.Unmarshal(data, tc)
 	if err != nil {
-		log.Fatalf("unable to parse file %s: %v", path, err)
+		log.Fatalf("unable to parse file %s: %v", filePath, err)
 	}
+
+	// Add file path to tests
+	fileName := path.Base(filePath)
+	for _, test := range tc.Tests {
+		test.Filename = fileName
+	}
+
 	return tc.Tests
 }

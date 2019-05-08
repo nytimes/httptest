@@ -47,15 +47,15 @@ type HTTPRequestConfig struct {
 func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) {
 	// Check input
 	if config == nil {
-		return nil, nil, fmt.Errorf("utils.SendHTTPRequest: nil config")
+		return nil, nil, fmt.Errorf("config is nil")
 	}
 
 	if len(config.Method) <= 0 {
-		return nil, nil, fmt.Errorf("utils.SendHTTPRequest: Method is required")
+		return nil, nil, fmt.Errorf("Method is required")
 	}
 
 	if len(config.URL) <= 0 {
-		return nil, nil, fmt.Errorf("utils.SendHTTPRequest: URL is required")
+		return nil, nil, fmt.Errorf("URL is required")
 	}
 
 	if config.Attempts == 0 {

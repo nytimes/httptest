@@ -32,24 +32,35 @@ import (
 	"strings"
 )
 
+// TestResult stores results of a single test
+type TestResult struct {
+	skipped bool
+	errors  []error
+}
+
 // GenerateTestInfoString generates a human-readable string indicates the test
 func GenerateTestInfoString(test *Test) string {
-	return fmt.Sprintf("%s | [%s]", test.Description, test.Request.Path)
+	return fmt.Sprintf("%s | %s | [%s]", test.Filename, test.Description, test.Request.Path)
 }
 
 // RunTest runs single test
-func RunTest(test *Test, defaultHost string) error {
+func RunTest(test *Test, defaultHost string) *TestResult {
+	result := &TestResult{}
+
 	if err := preProcessTest(test, defaultHost); err != nil {
-		return err
+		result.errors = append(result.errors, err)
+		return result
 	}
 
 	conditionsMet, err := validateConditions(test)
 	if err != nil {
-		return err
+		result.errors = append(result.errors, err)
+		return result
 	}
 	if !conditionsMet {
 		// Skip test
-		return nil
+		result.skipped = true
+		return result
 	}
 
 	url := test.Request.Scheme + "://" + test.Request.Host + path.Join("/", test.Request.Path)
@@ -70,10 +81,14 @@ func RunTest(test *Test, defaultHost string) error {
 
 	resp, respBody, err := SendHTTPRequest(reqConfig)
 	if err != nil {
-		return err
+		result.errors = append(result.errors, err)
+		return result
 	}
 
-	return validateResponse(test, resp, respBody)
+	// Append response validation errors
+	result.errors = append(result.errors, validateResponse(test, resp, respBody)...)
+
+	return result
 }
 
 func preProcessTest(test *Test, defaultHost string) error {
@@ -93,8 +108,8 @@ func preProcessTest(test *Test, defaultHost string) error {
 
 	// Method
 	method := stringValue(test.Request.Method, "GET")
-	if method != "GET" && method != "POST" {
-		return fmt.Errorf("invalid method %s. only GET and POST are supported", method)
+	if method != "GET" && method != "POST" && method != "PUT" && method != "PATCH" && method != "DELETE" {
+		return fmt.Errorf("invalid method %s. only GET, POST, PUT, PATCH, DELETE are supported", method)
 	}
 	test.Request.Method = method
 
@@ -129,33 +144,36 @@ func validateConditions(test *Test) (bool, error) {
 	return true, nil
 }
 
-func validateResponse(test *Test, response *http.Response, body []byte) error {
-	if err := validateResponseStatus(test, response); err != nil {
-		return err
-	}
+func validateResponse(test *Test, response *http.Response, body []byte) []error {
+	errors := []error{}
 
-	if err := validateResponseHeaders(test, response); err != nil {
-		return err
-	}
+	errors = append(errors, validateResponseStatus(test, response)...)
+	errors = append(errors, validateResponseHeaders(test, response)...)
+	errors = append(errors, validateResponseBody(test, response, body)...)
 
-	if err := validateResponseBody(test, response, body); err != nil {
-		return err
-	}
-
-	return nil
+	return errors
 }
 
-func validateResponseStatus(test *Test, response *http.Response) error {
+func validateResponseStatus(test *Test, response *http.Response) []error {
+	errors := []error{}
 	expected := test.Response
+
+	matched := false
 	for _, code := range expected.StatusCodes {
-		if code != response.StatusCode {
-			return fmt.Errorf("unexpected status code. expected %v, got %d", expected.StatusCodes, response.StatusCode)
+		if code == response.StatusCode {
+			matched = true
 		}
 	}
-	return nil
+
+	if !matched {
+		errors = append(errors, fmt.Errorf("unexpected status code. expected %v, got %d", expected.StatusCodes, response.StatusCode))
+	}
+
+	return errors
 }
 
-func validateResponseHeaders(test *Test, response *http.Response) error {
+func validateResponseHeaders(test *Test, response *http.Response) []error {
+	errors := []error{}
 	expectedResponse := test.Response
 
 	// Patterns
@@ -163,12 +181,13 @@ func validateResponseHeaders(test *Test, response *http.Response) error {
 	for header, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
 		if err != nil {
-			return fmt.Errorf("%s", err.Error())
+			errors = append(errors, fmt.Errorf("%s", err.Error()))
+			continue
 		}
 
 		value := strings.ToLower(response.Header.Get(header))
 		if !re.MatchString(value) {
-			return fmt.Errorf("the value of response header \"%s: %s\" does not match pattern \"%s\"", header, value, pattern)
+			errors = append(errors, fmt.Errorf("the value of response header \"%s: %s\" does not match pattern \"%s\"", header, value, pattern))
 		}
 	}
 
@@ -176,24 +195,28 @@ func validateResponseHeaders(test *Test, response *http.Response) error {
 	npAssertions := expectedResponse.Headers.NotPresent
 	for _, header := range npAssertions {
 		if len(response.Header.Get(header)) > 0 {
-			return fmt.Errorf("found unexpected response header \"%s\"", header)
+			errors = append(errors, fmt.Errorf("found unexpected response header \"%s\"", header))
 		}
 	}
 
-	return nil
+	return errors
 }
 
-func validateResponseBody(test *Test, response *http.Response, body []byte) error {
+func validateResponseBody(test *Test, response *http.Response, body []byte) []error {
+	errors := []error{}
+
 	patterns := test.Response.Body.Patterns
 	for _, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
 		if err != nil {
-			return fmt.Errorf("%s", err.Error())
+			errors = append(errors, fmt.Errorf("%s", err.Error()))
+			continue
 		}
 
 		if !re.Match(body) {
-			return fmt.Errorf("response body does not match pattern \"%s\"", pattern)
+			errors = append(errors, fmt.Errorf("response body does not match pattern \"%s\"", pattern))
 		}
 	}
-	return nil
+
+	return errors
 }

@@ -1,5 +1,5 @@
 run:
-	@TEST_CONCURRENCY=2 TEST_HOST="www.baidu.com" TEST_ENV="dev" go run *.go
+	@TEST_CONCURRENCY=2 TEST_HOST="httpbin.org" TEST_ENV="dev" go run *.go
 
 docker-build:
 	@docker build -t yunzhu/httptest .

@@ -42,9 +42,9 @@ var (
 // Config stores application configuration
 type Config struct {
 	Concurrency          int
-	Host                 string
 	DNSOverride          string
-	PrintSuccessfulTests bool
+	Host                 string
+	PrintFailedTestsOnly bool
 }
 
 // FromEnv returns config read from environment variables
@@ -54,21 +54,20 @@ func FromEnv() *Config {
 	if err != nil {
 		log.Fatalf("invalid concurrency value: %s", err)
 	}
-
 	if concurrency < 1 {
 		log.Fatalf("invalid concurrency value: %d", concurrency)
 	}
 
-	printSuccessfulTests := true
-	if getEnv("TEST_PRINT_SUCCESSFUL_TESTS", "true") == "false" {
-		printSuccessfulTests = false
+	printFailedOnly := false
+	if getEnv("TEST_PRINT_FAILED_ONLY", "false") == "true" {
+		printFailedOnly = true
 	}
 
 	return &Config{
 		Concurrency:          concurrency,
 		Host:                 getEnv("TEST_HOST", ""),
 		DNSOverride:          getEnv("TEST_DNS_OVERRIDE", ""),
-		PrintSuccessfulTests: printSuccessfulTests,
+		PrintFailedTestsOnly: printFailedOnly,
 	}
 }
 
