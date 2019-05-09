@@ -49,15 +49,15 @@ func RunTests(tests []*Test, config *Config) bool {
 			mux.Lock()
 			testInfoString := GenerateTestInfoString(t)
 
-			if result.skipped {
+			if result.Skipped {
 				skipped++
 				if !config.PrintFailedTestsOnly {
 					fmt.Printf("skipped: %s\n", testInfoString)
 				}
-			} else if len(result.errors) > 0 {
+			} else if len(result.Errors) > 0 {
 				failed++
 				fmt.Printf("failed: %s\n", testInfoString)
-				for _, err := range result.errors {
+				for _, err := range result.Errors {
 					fmt.Printf("%s\n", err.Error())
 				}
 				fmt.Println("")

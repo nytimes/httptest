@@ -34,8 +34,8 @@ import (
 
 // TestResult stores results of a single test
 type TestResult struct {
-	skipped bool
-	errors  []error
+	Skipped bool
+	Errors  []error
 }
 
 // GenerateTestInfoString generates a human-readable string indicates the test
@@ -48,18 +48,18 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 	result := &TestResult{}
 
 	if err := preProcessTest(test, defaultHost); err != nil {
-		result.errors = append(result.errors, err)
+		result.Errors = append(result.Errors, err)
 		return result
 	}
 
 	conditionsMet, err := validateConditions(test)
 	if err != nil {
-		result.errors = append(result.errors, err)
+		result.Errors = append(result.Errors, err)
 		return result
 	}
 	if !conditionsMet {
 		// Skip test
-		result.skipped = true
+		result.Skipped = true
 		return result
 	}
 
@@ -81,12 +81,12 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 
 	resp, respBody, err := SendHTTPRequest(reqConfig)
 	if err != nil {
-		result.errors = append(result.errors, err)
+		result.Errors = append(result.Errors, err)
 		return result
 	}
 
 	// Append response validation errors
-	result.errors = append(result.errors, validateResponse(test, resp, respBody)...)
+	result.Errors = append(result.Errors, validateResponse(test, resp, respBody)...)
 
 	return result
 }
