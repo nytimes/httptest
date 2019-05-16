@@ -3,19 +3,19 @@ workflow "push" {
   resolves = ["docker-publish-latest"]
 }
 
-action "not-branch-deletion" {
+action "not-branch-del-tag" {
   uses = "actions/bin/filter@master"
-  args = "not deleted_branch"
+  args = "not deleted"
 }
 
 action "docker-auth" {
-  needs = ["not-branch-deletion"]
+  needs = ["not-branch-del-tag"]
   uses = "actions/docker/login@master"
   secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
 
 action "docker-build" {
-  needs = ["not-branch-deletion"]
+  needs = ["not-branch-del-tag"]
   uses = "actions/docker/cli@master"
   args = "build -t blupig/httptest:dev --build-arg BUILD_BRANCH=${GITHUB_REF} --build-arg BUILD_COMMIT=${GITHUB_SHA} ."
 }
