@@ -100,6 +100,7 @@ tests:
     conditions:                  # Specify conditions. Test only runs when all conditions are met
       env:                       # Matches an environment variable
         TEST_ENV: '^(dev|stg)$'  # Environment variable name : regular expression
+    skipCertVerification: false  # Set true to skip verification of server TLS certificate (insecure and not recommended)
 
     request:                     # Request to send
       scheme: 'https'            # URL scheme. Only http and https are supported. Default: https

@@ -24,6 +24,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -32,15 +33,16 @@ import (
 
 // HTTPRequestConfig type
 type HTTPRequestConfig struct {
-	Method            string
-	URL               string
-	QueryParams       map[string]string
-	Headers           map[string]string
-	BasicAuthUsername string
-	BasicAuthPassword string
-	Body              io.Reader
-	Attempts          int
-	TimeoutSeconds    time.Duration
+	Method               string
+	URL                  string
+	QueryParams          map[string]string
+	Headers              map[string]string
+	BasicAuthUsername    string
+	BasicAuthPassword    string
+	Body                 io.Reader
+	Attempts             int
+	TimeoutSeconds       time.Duration
+	SkipCertVerification bool
 }
 
 // SendHTTPRequest sends an HTTP request and returns response body and status
@@ -96,8 +98,13 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		req.Header.Add(k, v)
 	}
 
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
+	}
+
 	client := http.Client{
-		Timeout: time.Duration(config.TimeoutSeconds * time.Second),
+		Transport: transport,
+		Timeout:   time.Duration(config.TimeoutSeconds * time.Second),
 	}
 
 	// Start sending request

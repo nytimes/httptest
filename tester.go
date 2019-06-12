@@ -71,12 +71,13 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 	}
 
 	reqConfig := &HTTPRequestConfig{
-		Method:         test.Request.Method,
-		URL:            url,
-		Headers:        test.Request.Headers,
-		Body:           body,
-		Attempts:       1,
-		TimeoutSeconds: 5,
+		Method:               test.Request.Method,
+		URL:                  url,
+		Headers:              test.Request.Headers,
+		Body:                 body,
+		Attempts:             1,
+		TimeoutSeconds:       5,
+		SkipCertVerification: test.SkipCertVerification,
 	}
 
 	resp, respBody, err := SendHTTPRequest(reqConfig)

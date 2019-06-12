@@ -44,7 +44,8 @@ type Test struct {
 	Conditions  struct {
 		Env map[string]string `yaml:"env"`
 	} `yaml:"conditions"`
-	Request struct {
+	SkipCertVerification bool `yaml:"skipCertVerification"`
+	Request              struct {
 		Scheme  string            `yaml:"scheme"`
 		Host    string            `yaml:"host"`
 		Method  string            `yaml:"method"`
