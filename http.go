@@ -103,6 +103,9 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	}
 
 	client := http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 		Transport: transport,
 		Timeout:   time.Duration(config.TimeoutSeconds * time.Second),
 	}
