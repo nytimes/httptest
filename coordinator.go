@@ -56,7 +56,7 @@ func RunTests(tests []*Test, config *Config) bool {
 				}
 			} else if len(result.Errors) > 0 {
 				failed++
-				fmt.Printf("failed: %s\n", testInfoString)
+				fmt.Printf("\nfailed: %s\n", testInfoString)
 				for _, err := range result.Errors {
 					fmt.Printf("%s\n", err.Error())
 				}

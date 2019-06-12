@@ -27,7 +27,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"regexp"
 	"strings"
 )
@@ -63,7 +62,11 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		return result
 	}
 
-	url := test.Request.Scheme + "://" + test.Request.Host + path.Join("/", test.Request.Path)
+	if !strings.HasPrefix(test.Request.Path, "/") {
+		result.Errors = append(result.Errors, fmt.Errorf("request.path must start with /"))
+		return result
+	}
+	url := test.Request.Scheme + "://" + test.Request.Host + test.Request.Path
 
 	var body io.Reader
 	if len(test.Request.Body) > 0 {
@@ -71,12 +74,13 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 	}
 
 	reqConfig := &HTTPRequestConfig{
-		Method:         test.Request.Method,
-		URL:            url,
-		Headers:        test.Request.Headers,
-		Body:           body,
-		Attempts:       1,
-		TimeoutSeconds: 5,
+		Method:               test.Request.Method,
+		URL:                  url,
+		Headers:              test.Request.Headers,
+		Body:                 body,
+		Attempts:             1,
+		TimeoutSeconds:       5,
+		SkipCertVerification: test.SkipCertVerification,
 	}
 
 	resp, respBody, err := SendHTTPRequest(reqConfig)

@@ -53,7 +53,7 @@ tests:
     response:
       statusCodes: [300]
 
-  # This test will fail
+  # Multiple failures
   - description: 'HTTP status code - 400'
     request:
       path: '/status/400'
@@ -88,3 +88,12 @@ tests:
       body:
         patterns:
           - 'e4q2jezpkyv1q3a9'
+
+  # Different host and allow invalid cert
+  - description: 'invalid server cert'
+    skipCertVerification: true
+    request:
+      host: 'wrong.host.badssl.com'
+      path: '/'
+    response:
+      statusCodes: [200]
