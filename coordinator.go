@@ -35,8 +35,8 @@ func RunTests(tests []*Test, config *Config) bool {
 
 			result := RunTest(t, config.Host)
 
-			// Acquire lock before accessing shared variables and writing output
-			// Code in critical section should not perform network I/O
+			// Acquire lock before accessing shared variables and writing output.
+			// Code in critical section should not perform network I/O.
 			mux.Lock()
 
 			if result.Skipped {
