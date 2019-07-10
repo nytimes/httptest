@@ -112,6 +112,14 @@ func preProcessTest(test *Test, defaultHost string) error {
 		return fmt.Errorf("request.path must start with /")
 	}
 
+	// Convert header fields to lowercase
+	// https://tools.ietf.org/html/rfc7540#section-8.1.2
+	headers := map[string]string{}
+	for k, v := range test.Request.Headers {
+		headers[strings.ToLower(k)] = v
+	}
+	test.Request.Headers = headers
+
 	return nil
 }
 
