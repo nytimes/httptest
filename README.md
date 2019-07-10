@@ -130,7 +130,7 @@ tests:
       path: '/'                  # Path to hit. Required
       headers:                   # Headers
         x-test-header-0: 'abc'
-        x-test: '${HEADER1_VAL}' # Environment variable substitution
+        x-test: '${REQ_TEST}'    # Environment variable substitution
       body: ''                   # Request body. Processed as string
 
     response:                    # Expected response
