@@ -195,7 +195,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		}
 
 		if !matched {
-			errors = append(errors, fmt.Errorf("response header \"%s\" has values \"%v\", which do not match pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
+			errors = append(errors, fmt.Errorf("response header \"%s\" has values \"%s\", which do not match pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
 	}
 
