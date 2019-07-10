@@ -64,7 +64,7 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		Headers:              test.Request.Headers,
 		Body:                 body,
 		Attempts:             1,
-		TimeoutSeconds:       30,
+		TimeoutSeconds:       60,
 		SkipCertVerification: test.SkipCertVerification,
 	}
 
