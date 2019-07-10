@@ -182,7 +182,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		// Get all instances of the response header
 		values, ok := response.Header[http.CanonicalHeaderKey(header)]
 		if !ok {
-			errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected pattern \"%s\"", header, pattern))
+			errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
 		}
 
 		// Try to match pattern from one of the instances
@@ -195,7 +195,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		}
 
 		if !matched {
-			errors = append(errors, fmt.Errorf("response header \"%s\" has values \"%v\", does not match pattern \"%s\"", header, values, pattern))
+			errors = append(errors, fmt.Errorf("response header \"%s\" has values \"%v\", which do not match pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
 	}
 
