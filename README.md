@@ -67,7 +67,7 @@ Examples
 
 ### Configurations
 
-A few global configurations (apply to all tests) can be specified by
+A few global configurations (applied to all tests) can be specified by
 environment variables:
 
 - `TEST_DIRECTORY`: Local directory that contains the test definition YAML
@@ -89,7 +89,7 @@ environment variables:
 ### Environment variable substitution
 
 This program supports variable substitution from environment variables in YAML
-files. This is useful for handling secrets ot sending dynamic values. Example:
+files. This is useful for handling secrets or dynamic values. Example:
 
 ```yaml
 tests:
@@ -104,7 +104,7 @@ tests:
 
 ### Full test example
 
-Required fields:
+Required fields for each test:
 
 - `description`
 - `request.path`
