@@ -15,7 +15,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -36,27 +35,22 @@ func RunTests(tests []*Test, config *Config) bool {
 
 			result := RunTest(t, config.Host)
 
-			// Acquire lock before accessing shared variables and writing output
-			// Code in critical section should not perform network I/O
+			// Acquire lock before accessing shared variables and writing output.
+			// Code in critical section should not perform network I/O.
 			mux.Lock()
-			testInfoString := GenerateTestInfoString(t)
 
 			if result.Skipped {
 				skipped++
 				if !config.PrintFailedTestsOnly {
-					fmt.Printf("skipped: %s\n", testInfoString)
+					PrintTestResult(t, result)
 				}
 			} else if len(result.Errors) > 0 {
 				failed++
-				fmt.Printf("\nfailed: %s\n", testInfoString)
-				for _, err := range result.Errors {
-					fmt.Printf("%s\n", err.Error())
-				}
-				fmt.Println("")
+				PrintTestResult(t, result)
 			} else {
 				passed++
 				if !config.PrintFailedTestsOnly {
-					fmt.Printf("passed: %s\n", testInfoString)
+					PrintTestResult(t, result)
 				}
 			}
 			mux.Unlock()
@@ -68,11 +62,7 @@ func RunTests(tests []*Test, config *Config) bool {
 		sem <- 0
 	}
 
-	fmt.Printf("\n%d passed\n", passed)
-	fmt.Printf("%d failed\n", failed)
-	if skipped > 0 {
-		fmt.Printf("%d skipped\n", skipped)
-	}
+	PrintTestSummary(passed, failed, skipped)
 
 	if failed > 0 {
 		return false

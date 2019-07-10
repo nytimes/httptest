@@ -21,6 +21,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/drone/envsubst"
 	"gopkg.in/yaml.v2"
 )
 
@@ -100,13 +101,21 @@ func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 }
 
 func parseTestFile(filePath string) ([]*Test, error) {
+	// Read file into buffer
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("ioutil: %v", err)
 	}
 
+	// Environment variable substitution
+	yamlString, err := envsubst.EvalEnv(string(data))
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse file %s: %v", filePath, err)
+	}
+
+	// Parse as YAML
 	tf := TestFile{}
-	err = yaml.Unmarshal(data, &tf)
+	err = yaml.Unmarshal([]byte(yamlString), &tf)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse file %s: %v", filePath, err)
 	}

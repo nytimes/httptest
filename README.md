@@ -67,7 +67,8 @@ Examples
 
 ### Configurations
 
-Environment variables:
+A few global configurations (applied to all tests) can be specified by
+environment variables:
 
 - `TEST_DIRECTORY`: Local directory that contains the test definition YAML
   files. Default: `tests`
@@ -85,9 +86,29 @@ Environment variables:
 - `TEST_PRINT_FAILED_ONLY`: Only print failed tests. Valid values: `false` or
   `true`. Default: `false`.
 
+### Environment variable substitution
+
+This program supports variable substitution from environment variables in YAML
+files. This is useful for handling secrets or dynamic values.
+Visit [here](https://github.com/drone/envsubst/blob/master/README) for
+supported functions.
+
+Example:
+
+```yaml
+tests:
+  - description: 'get current user'
+    request:
+      path: '/user'
+      headers:
+        authorization: 'token ${SECRET_AUTH_TOKEN}'
+    response:
+      statusCodes: [200]
+```
+
 ### Full test example
 
-Required fields:
+Required fields for each test:
 
 - `description`
 - `request.path`
@@ -109,7 +130,7 @@ tests:
       path: '/'                  # Path to hit. Required
       headers:                   # Headers
         x-test-header-0: 'abc'
-        x-test-header-1: 'def'
+        x-test: '${REQ_TEST}'    # Environment variable substitution
       body: ''                   # Request body. Processed as string
 
     response:                    # Expected response
@@ -119,7 +140,7 @@ tests:
           server: '^ECS$'        # Header name : regular expression
           cache-control: '.+'
         notPresent:              # Specify headers not expected to exist.
-          - 'set-cookie'         # Not regular expressions
+          - 'set-cookie'         # These are not regular expressions
           - 'x-frame-options'
       body:                      # Response body
         patterns:                # Response body has to match all patterns in this list in order to pass test

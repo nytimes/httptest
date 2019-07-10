@@ -29,20 +29,17 @@ type TestResult struct {
 	Errors  []error
 }
 
-// GenerateTestInfoString generates a human-readable string indicates the test
-func GenerateTestInfoString(test *Test) string {
-	return fmt.Sprintf("%s | %s | [%s]", test.Filename, test.Description, test.Request.Path)
-}
-
 // RunTest runs single test
 func RunTest(test *Test, defaultHost string) *TestResult {
 	result := &TestResult{}
 
+	// Validate test and assign default values
 	if err := preProcessTest(test, defaultHost); err != nil {
 		result.Errors = append(result.Errors, err)
 		return result
 	}
 
+	// Check test conditions and skip if not met
 	conditionsMet, err := validateConditions(test)
 	if err != nil {
 		result.Errors = append(result.Errors, err)
@@ -54,10 +51,6 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		return result
 	}
 
-	if !strings.HasPrefix(test.Request.Path, "/") {
-		result.Errors = append(result.Errors, fmt.Errorf("request.path must start with /"))
-		return result
-	}
 	url := test.Request.Scheme + "://" + test.Request.Host + test.Request.Path
 
 	var body io.Reader
@@ -71,7 +64,7 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		Headers:              test.Request.Headers,
 		Body:                 body,
 		Attempts:             1,
-		TimeoutSeconds:       5,
+		TimeoutSeconds:       30,
 		SkipCertVerification: test.SkipCertVerification,
 	}
 
@@ -87,6 +80,7 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 	return result
 }
 
+// preProcessTest validates test and assigns default values
 func preProcessTest(test *Test, defaultHost string) error {
 	// Scheme
 	scheme := stringValue(test.Request.Scheme, "https")
@@ -112,6 +106,10 @@ func preProcessTest(test *Test, defaultHost string) error {
 	// Path
 	if len(test.Request.Path) < 1 {
 		return fmt.Errorf("request path is required")
+	}
+
+	if !strings.HasPrefix(test.Request.Path, "/") {
+		return fmt.Errorf("request.path must start with /")
 	}
 
 	return nil

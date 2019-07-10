@@ -33,7 +33,7 @@ var (
 
 func main() {
 	// Print version info
-	fmt.Printf("httptest: %s %s %s\n\n", BuildCommit, BuildBranch, BuildTime)
+	fmt.Printf("httptest: %s %s %s\n", BuildCommit, BuildBranch, BuildTime)
 
 	// Get and apply config
 	config, err := FromEnv()
