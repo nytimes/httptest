@@ -22,6 +22,8 @@ import (
 
 // PrintTestResult prints result of a single test
 func PrintTestResult(test *Test, result *TestResult) {
+	color.NoColor = false
+
 	fmt.Println("")
 
 	// Print colored status text
