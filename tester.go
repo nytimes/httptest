@@ -191,6 +191,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		values, ok := response.Header[http.CanonicalHeaderKey(header)]
 		if !ok {
 			errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
+			continue
 		}
 
 		// Try to match pattern from one of the instances
