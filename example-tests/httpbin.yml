@@ -15,7 +15,7 @@ tests:
   - description: 'HTTP POST'
     request:
       method: 'POST'
-      path: '/post'
+      path: 'post'
     response:
       statusCodes: [200]
       body:
