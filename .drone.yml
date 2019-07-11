@@ -1,9 +1,22 @@
+---
 kind: pipeline
 name: default
 
 workspace:
   base: /go
   path: src/github.com/nytimes/httptest
+
+publish_config: &publish_config
+  image: plugins/docker
+  settings:
+    repo: nytimes/httptest
+    build_args:
+      BUILD_BRANCH=$DRONE_BRANCH
+      BUILD_COMMIT=$DRONE_COMMIT
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
 
 steps:
   - name: build
@@ -16,25 +29,13 @@ steps:
       - go test
 
   - name: publish-dev
-    image: plugins/docker
-    settings:
-      repo: nytimes/httptest
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
+    <<: *publish_config
       tags: [dev]
     when:
       event: [push]
 
   - name: publish
-    image: plugins/docker
-    settings:
-      repo: nytimes/httptest
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
+    <<: *publish_config
       auto_tag: true
     when:
       event: [push]
