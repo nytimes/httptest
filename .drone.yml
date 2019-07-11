@@ -14,3 +14,13 @@ steps:
     commands:
       - go build
       - go test
+
+  - name: publish
+    image: plugins/docker
+    repo: nytimes/httptest
+    tags: [dev]
+    secrets:
+      - docker_username
+      - docker_password
+    when:
+      event: [push]
