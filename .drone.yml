@@ -44,7 +44,5 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      # Information on auto_tag: http://plugins.drone.io/drone-plugins/drone-docker/
       auto_tag: true
-    when:
-      event: [push, tag]
-      branch: [master]
