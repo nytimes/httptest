@@ -6,18 +6,6 @@ workspace:
   base: /go
   path: src/github.com/nytimes/httptest
 
-publish_config: &publish_config
-  image: plugins/docker
-  settings:
-    repo: nytimes/httptest
-    build_args:
-      BUILD_BRANCH=$DRONE_BRANCH
-      BUILD_COMMIT=$DRONE_COMMIT
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-
 steps:
   - name: build
     image: golang:alpine
@@ -29,13 +17,31 @@ steps:
       - go test
 
   - name: publish-dev
-    <<: *publish_config
+    image: plugins/docker
+    settings:
+      repo: nytimes/httptest
+      build_args:
+        BUILD_BRANCH=$DRONE_BRANCH
+        BUILD_COMMIT=$DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
       tags: [dev]
     when:
       event: [push]
 
   - name: publish
-    <<: *publish_config
+    image: plugins/docker
+    settings:
+      repo: nytimes/httptest
+      build_args:
+        BUILD_BRANCH=$DRONE_BRANCH
+        BUILD_COMMIT=$DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
       auto_tag: true
     when:
       event: [push]
