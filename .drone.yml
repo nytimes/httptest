@@ -46,5 +46,5 @@ steps:
         from_secret: docker_password
       auto_tag: true
     when:
-      event: [push]
+      event: [push, tag]
       branch: [master]
