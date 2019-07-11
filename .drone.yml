@@ -1,0 +1,17 @@
+kind: pipeline
+
+steps:
+  - name: build
+    image: golang:alpine
+    commands:
+      - go build
+      - go test
+
+
+# - name: docker
+#   image: plugins/docker
+#   settings:
+#     repo: foo/bar
+#     auto_tag: true
+#     username: kevinbacon
+#     password: pa55word

@@ -4,8 +4,8 @@ FROM golang:alpine
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 
-COPY . /go/src/github.com/blupig/httptest
-WORKDIR /go/src/github.com/blupig/httptest
+COPY . /go/src/github.com/nytimes/httptest
+WORKDIR /go/src/github.com/nytimes/httptest
 
 # --build-arg
 ARG BUILD_BRANCH
