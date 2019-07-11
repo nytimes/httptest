@@ -15,14 +15,27 @@ steps:
       - go build
       - go test
 
-  - name: publish
+  - name: publish-dev
     image: plugins/docker
     settings:
       repo: nytimes/httptest
-      tags: [dev]
       username:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      tags: [dev]
     when:
       event: [push]
+
+  - name: publish
+    image: plugins/docker
+    settings:
+      repo: nytimes/httptest
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      auto_tag: true
+    when:
+      event: [push]
+      branch: [master]
