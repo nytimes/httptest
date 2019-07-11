@@ -30,6 +30,8 @@ steps:
       tags: [dev]
     when:
       event: [push]
+      branch:
+        exclude: [master]
 
   - name: publish
     image: plugins/docker
