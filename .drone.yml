@@ -21,8 +21,8 @@ steps:
     settings:
       repo: nytimes/httptest
       build_args:
-        BUILD_BRANCH=$DRONE_BRANCH
-        BUILD_COMMIT=$DRONE_COMMIT
+        - BUILD_BRANCH=$$DRONE_BRANCH
+        - BUILD_COMMIT=$$DRONE_COMMIT
       username:
         from_secret: docker_username
       password:
@@ -36,8 +36,8 @@ steps:
     settings:
       repo: nytimes/httptest
       build_args:
-        BUILD_BRANCH=$DRONE_BRANCH
-        BUILD_COMMIT=$DRONE_COMMIT
+        BUILD_BRANCH=$$DRONE_BRANCH
+        BUILD_COMMIT=$$DRONE_COMMIT
       username:
         from_secret: docker_username
       password:
