@@ -5,6 +5,7 @@ steps:
   - name: build
     image: golang:alpine
     commands:
+      - pwd
       - go build
       - go test
 
