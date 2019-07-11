@@ -48,6 +48,8 @@ func PrintTestResult(test *Test, result *TestResult) {
 
 // PrintTestSummary prints summary info for multiple tests
 func PrintTestSummary(passed, failed, skipped int) {
+	color.NoColor = false
+
 	fmt.Printf(
 		"\n%s passed\n%s failed\n%s skipped\n",
 		color.HiGreenString("%d", passed),
