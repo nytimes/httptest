@@ -35,7 +35,7 @@ func PrintTestResult(test *Test, result *TestResult) {
 	}
 
 	// Print test info
-	fmt.Printf("%s\n", fmt.Sprintf("%s | %s | [%s]", test.Filename, test.Description, test.Request.Path))
+	fmt.Printf("%s\n", fmt.Sprintf("%s | %s | %s", test.Filename, test.Description, test.Request.Path))
 
 	// Print all errors
 	if len(result.Errors) > 0 {
