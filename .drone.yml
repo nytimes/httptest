@@ -8,16 +8,9 @@ workspace:
 steps:
   - name: build
     image: golang:alpine
+    environment:
+      GOOS: linux
+      CGO_ENABLED: 0
     commands:
-      - pwd
       - go build
       - go test
-
-
-# - name: docker
-#   image: plugins/docker
-#   settings:
-#     repo: foo/bar
-#     auto_tag: true
-#     username: kevinbacon
-#     password: pa55word
