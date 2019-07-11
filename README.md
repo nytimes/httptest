@@ -5,7 +5,7 @@ A simple concurrent HTTP testing tool
 
 ### Write a simple test
 
-Create a file `test.yaml` with the following content:
+Create a file `tests.yaml` with the following content:
 
 ```yaml
 tests:
