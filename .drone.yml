@@ -1,0 +1,50 @@
+---
+kind: pipeline
+name: default
+
+workspace:
+  base: /go
+  path: src/github.com/nytimes/httptest
+
+steps:
+  - name: build
+    image: golang:alpine
+    environment:
+      GOOS: linux
+      CGO_ENABLED: 0
+    commands:
+      - go build
+      - go test
+
+  - name: publish-dev
+    image: plugins/docker
+    settings:
+      repo: nytimes/httptest
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags: [dev]
+    when:
+      event: [push]
+      branch:
+        exclude: [master]
+
+  - name: publish
+    image: plugins/docker
+    settings:
+      repo: nytimes/httptest
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      auto_tag: true
+    when:
+      event: [push]
+      branch: [master]

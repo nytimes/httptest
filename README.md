@@ -1,4 +1,7 @@
 # httptest
+
+[![Build Status](https://cloud.drone.io/api/badges/nytimes/httptest/status.svg)](https://cloud.drone.io/nytimes/httptest)
+
 A simple concurrent HTTP testing tool
 
 ## Usage
@@ -23,15 +26,16 @@ This program is distributed as a Docker image. To run a container locally:
 docker run --rm \
     -v $(pwd)/tests.yaml:/tests/tests.yaml \
     -e "TEST_HOST=example.com" \
-    blupig/httptest
+    nytimes/httptest
 ```
 
 You should see an output similar to this:
 ```
-passed:  tests.yaml | root | [/]
+passed:  tests.yaml | root | /
 
 1 passed
 0 failed
+0 skipped
 ```
 
 By default, the program parses all files in `$(pwd)/tests` recursively.
@@ -48,7 +52,7 @@ Examples
   ```yaml
   pipeline:
     tests:
-      image: blupig/httptest
+      image: nytimes/httptest
       pull: true
       environment:
         TEST_HOST: 'example.com'
@@ -58,7 +62,7 @@ Examples
 
   ```hcl
   action "httptest" {
-    uses = "docker://blupig/httptest"
+    uses = "docker://nytimes/httptest"
     env = {
       TEST_HOST = "example.com"
     }
@@ -153,3 +157,19 @@ tests:
     response:
       statusCodes: [200]
 ```
+
+## Development
+
+### Run locally
+
+Download package
+```
+go get -d -u github.com/nytimes/httptest
+```
+
+Build and run
+```bash
+# In repo root directory
+make run
+```
+This will run the tests defined in `example-tests` directory.
