@@ -80,6 +80,12 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		req.URL.RawQuery = q.Encode()
 	}
 
+	// Host header
+	// https://github.com/golang/go/issues/7682
+	if len(config.Headers["host"]) > 0 {
+		req.Host = config.Headers["host"]
+	}
+
 	// BasicAuth header
 	if len(config.BasicAuthUsername) > 0 || len(config.BasicAuthPassword) > 0 {
 		req.SetBasicAuth(config.BasicAuthUsername, config.BasicAuthPassword)

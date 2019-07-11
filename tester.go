@@ -64,7 +64,7 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		Headers:              test.Request.Headers,
 		Body:                 body,
 		Attempts:             1,
-		TimeoutSeconds:       30,
+		TimeoutSeconds:       60,
 		SkipCertVerification: test.SkipCertVerification,
 	}
 
@@ -111,6 +111,14 @@ func preProcessTest(test *Test, defaultHost string) error {
 	if !strings.HasPrefix(test.Request.Path, "/") {
 		return fmt.Errorf("request.path must start with /")
 	}
+
+	// Convert header fields to lowercase
+	// https://tools.ietf.org/html/rfc7540#section-8.1.2
+	headers := map[string]string{}
+	for k, v := range test.Request.Headers {
+		headers[strings.ToLower(k)] = v
+	}
+	test.Request.Headers = headers
 
 	return nil
 }
@@ -179,9 +187,24 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 			continue
 		}
 
-		value := strings.ToLower(response.Header.Get(header))
-		if !re.MatchString(value) {
-			errors = append(errors, fmt.Errorf("response header \"%s\" has value \"%s\", does not match pattern \"%s\"", header, value, pattern))
+		// Get all instances of the response header
+		values, ok := response.Header[http.CanonicalHeaderKey(header)]
+		if !ok {
+			errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
+			continue
+		}
+
+		// Try to match pattern from one of the instances
+		matched := false
+		for _, value := range values {
+			value = strings.ToLower(value)
+			if re.MatchString(value) {
+				matched = true
+			}
+		}
+
+		if !matched {
+			errors = append(errors, fmt.Errorf("response header \"%s\" has value(s) \"%s\", none of which match pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
 	}
 

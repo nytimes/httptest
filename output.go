@@ -35,7 +35,7 @@ func PrintTestResult(test *Test, result *TestResult) {
 	}
 
 	// Print test info
-	fmt.Printf("%s\n", fmt.Sprintf("%s | %s | [%s]", test.Filename, test.Description, test.Request.Path))
+	fmt.Printf("%s\n", fmt.Sprintf("%s | %s | %s", test.Filename, test.Description, test.Request.Path))
 
 	// Print all errors
 	if len(result.Errors) > 0 {
@@ -48,6 +48,8 @@ func PrintTestResult(test *Test, result *TestResult) {
 
 // PrintTestSummary prints summary info for multiple tests
 func PrintTestSummary(passed, failed, skipped int) {
+	color.NoColor = false
+
 	fmt.Printf(
 		"\n%s passed\n%s failed\n%s skipped\n",
 		color.HiGreenString("%d", passed),
