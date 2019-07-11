@@ -20,9 +20,9 @@ steps:
     image: plugins/docker
     settings:
       repo: nytimes/httptest
-      build_args:
-        - BUILD_BRANCH=$$DRONE_BRANCH
-        - BUILD_COMMIT=$$DRONE_COMMIT
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
       username:
         from_secret: docker_username
       password:

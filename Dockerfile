@@ -8,14 +8,14 @@ COPY . /go/src/github.com/nytimes/httptest
 WORKDIR /go/src/github.com/nytimes/httptest
 
 # --build-arg
-ARG BUILD_BRANCH
-ARG BUILD_COMMIT
+ARG DRONE_BRANCH
+ARG DRONE_COMMIT
 
 # Build application
 RUN go build -a -o /go/bin/httptest \
     -ldflags "-extldflags \"-static\" \
-              -X main.BuildBranch=${BUILD_BRANCH} \
-              -X main.BuildCommit=${BUILD_COMMIT:0:8} \
+              -X main.BuildBranch=${DRONE_BRANCH} \
+              -X main.BuildCommit=${DRONE_COMMIT:0:8} \
               -X main.BuildTime=$(date -Iseconds)"
 
 # Minimum runtime container
