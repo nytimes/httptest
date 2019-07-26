@@ -28,6 +28,15 @@ docker run --rm \
     -e "TEST_HOST=example.com" \
     nytimes/httptest
 ```
+Tip: Remember to include the `-e "TEST_ENV=<env>" if your test has conditions for env_var. e.g.
+
+```
+docker run --rm \
+    -v $(pwd)/tests.yaml:/tests/tests.yaml \
+    -e "TEST_HOST=stg.example.com" \
+    -e "TEST_ENV=stg" \
+    nytimes/httptest
+```
 
 You should see an output similar to this:
 ```
