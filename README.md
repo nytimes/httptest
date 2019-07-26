@@ -28,15 +28,6 @@ docker run --rm \
     -e "TEST_HOST=example.com" \
     nytimes/httptest
 ```
-Tip: Remember to include the `-e "TEST_ENV=<env>" if your test has conditions for env_var. e.g.
-
-```
-docker run --rm \
-    -v $(pwd)/tests.yaml:/tests/tests.yaml \
-    -e "TEST_HOST=stg.example.com" \
-    -e "TEST_ENV=stg" \
-    nytimes/httptest
-```
 
 You should see an output similar to this:
 ```
@@ -45,6 +36,16 @@ passed:  tests.yaml | root | /
 1 passed
 0 failed
 0 skipped
+```
+
+Tip: If your test cases have conditions on environment variables (see `conditions` in [full example](#full-test-example)), remember to include `-e "<ENV_VAR>=<value>"`. e.g.
+
+```
+docker run --rm \
+    -v $(pwd)/tests.yaml:/tests/tests.yaml \
+    -e "TEST_HOST=stg.example.com" \
+    -e "TEST_ENV=stg" \
+    nytimes/httptest
 ```
 
 By default, the program parses all files in `$(pwd)/tests` recursively.
