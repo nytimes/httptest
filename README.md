@@ -38,6 +38,16 @@ passed:  tests.yaml | root | /
 0 skipped
 ```
 
+Tip: If your test cases have conditions on environment variables (see `conditions` in [full example](#full-test-example)), remember to include `-e "<ENV_VAR>=<value>"`. e.g.
+
+```
+docker run --rm \
+    -v $(pwd)/tests.yaml:/tests/tests.yaml \
+    -e "TEST_HOST=stg.example.com" \
+    -e "TEST_ENV=stg" \
+    nytimes/httptest
+```
+
 By default, the program parses all files in `$(pwd)/tests` recursively.
 This can be changed using an environment variable.
 
