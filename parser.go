@@ -51,6 +51,7 @@ type Test struct {
 		Headers     struct {
 			Patterns   map[string]string `yaml:"patterns"`
 			NotPresent []string          `yaml:"notPresent"`
+			NotMatching map[string]string `yaml:"notMatching"`
 		} `yaml:"headers"`
 		Body struct {
 			Patterns []string `yaml:"patterns"`
