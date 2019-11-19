@@ -23,6 +23,7 @@ steps:
       CGO_ENABLED: 0
       TEST_DIRECTORY: example-tests
       TEST_HOST: httpbin.org
+      TEST_ENV: dev
     commands:
       - go run *.go
 
