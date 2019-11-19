@@ -156,6 +156,8 @@ tests:
         notPresent:              # Specify headers not expected to exist.
           - 'set-cookie'         # These are not regular expressions
           - 'x-frame-options'
+        notMatching:
+          set-cookie: ^.*abc.*$  # Specify headers expected to exist but NOT match the given regex
       body:                      # Response body
         patterns:                # Response body has to match all patterns in this list in order to pass test
           - 'charset="utf-8"'    # Regular expressions
