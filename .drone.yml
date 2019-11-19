@@ -16,6 +16,16 @@ steps:
       - go build
       - go test
 
+  - name: test
+    image: golang:alpine
+    environment:
+      GOOS: linux
+      CGO_ENABLED: 0
+      TEST_DIRECTORY: example-tests
+      TEST_HOST: httpbin.org
+    commands:
+      - go run *.go
+
   - name: publish-dev
     image: plugins/docker
     settings:
