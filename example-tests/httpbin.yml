@@ -2,12 +2,23 @@
 tests:
   - description: 'HTTP GET'
     request:
+      scheme: 'http'
+      path: '/get'
+    response:
+      statusCodes: [200]
+
+  - description: 'HTTPS GET'
+    request:
       path: '/get'
     response:
       statusCodes: [200]
       headers:
         patterns:
           access-control-allow-origin: '.+'
+        notPresent:
+          - 'not-present-header'
+        notMatching:
+          access-control-allow-origin: 'example.com'
       body:
         patterns:
           - 'https://httpbin.org/get'
@@ -16,11 +27,13 @@ tests:
     request:
       method: 'POST'
       path: '/post'
+      body: 'testvalue'
     response:
       statusCodes: [200]
       body:
         patterns:
           - 'https://httpbin.org/post'
+          - 'testvalue'
 
   - description: 'HTTP PATCH'
     conditions:
@@ -41,44 +54,22 @@ tests:
     response:
       statusCodes: [400]
 
-  - description: 'HTTP status code - 200'
-    request:
-      path: '/status/200'
-    response:
-      statusCodes: [200]
-
-  - description: 'HTTP status code - 300'
-    request:
-      path: '/status/300'
-    response:
-      statusCodes: [300]
-
-  # Multiple failures
-  - description: 'HTTP status code - 400'
+  - description: 'HTTP status code - multiple'
     request:
       path: '/status/400'
     response:
-      statusCodes: [200, 301, 302]
-      headers:
-        patterns:
-          access-control-allow-origin: 'example.com'
+      statusCodes: [200, 301, 302, 400]
 
-  - description: 'HTTP status code - 500'
-    request:
-      path: '/status/500'
-    response:
-      statusCodes: [500]
-
-  - description: 'echo headers'
+  - description: 'env var substitution'
     request:
       path: '/headers'
       headers:
-        x-test-0: 'ihlx0u6g3x7e4wg8'
+        x-test-0: '${TEST_ENV}'
     response:
       statusCodes: [200]
       body:
         patterns:
-          - 'ihlx0u6g3x7e4wg8'
+          - 'dev'
 
   - description: 'base64'
     request:
