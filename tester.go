@@ -178,8 +178,27 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 	errors := []error{}
 	expectedResponse := test.Response
 
+	// Patterns (matching assertions)
+	errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.Patterns, true)...)
+
+	// NotMatching assertions
+	errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.NotMatching, false)...)
+
+	// NotPresent assertions
+	npAssertions := expectedResponse.Headers.NotPresent
+	for _, header := range npAssertions {
+		if len(response.Header.Get(header)) > 0 {
+			errors = append(errors, fmt.Errorf("found unexpected response header \"%s\"", header))
+		}
+	}
+
+	return errors
+}
+
+func validateResponseHeaderPatterns(response *http.Response, patterns map[string]string, expectedToMatch bool) []error {
+	errors := []error{}
+
 	// Patterns
-	patterns := expectedResponse.Headers.Patterns
 	for header, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
 		if err != nil {
@@ -190,7 +209,11 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		// Get all instances of the response header
 		values, ok := response.Header[http.CanonicalHeaderKey(header)]
 		if !ok {
-			errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
+			if expectedToMatch {
+				errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
+			} else {
+				errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to be present", header))
+			}
 			continue
 		}
 
@@ -203,16 +226,12 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 			}
 		}
 
-		if !matched {
+		if expectedToMatch && !matched {
 			errors = append(errors, fmt.Errorf("response header \"%s\" has value(s) \"%s\", none of which match pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
-	}
 
-	// NotPresent assertions
-	npAssertions := expectedResponse.Headers.NotPresent
-	for _, header := range npAssertions {
-		if len(response.Header.Get(header)) > 0 {
-			errors = append(errors, fmt.Errorf("found unexpected response header \"%s\"", header))
+		if !expectedToMatch && matched {
+			errors = append(errors, fmt.Errorf("response header \"%s\" has value(s) \"%s\", at least one of which matches pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
 	}
 
