@@ -19,7 +19,9 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -98,6 +100,15 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
+	}
+
+	// If available, use a default IP if the domain is unresolvable
+	_, lookupError := net.LookupIP(req.URL.Host)
+	defaultIP := os.Getenv("TEST_DEFAULT_IP")
+
+	if lookupError != nil && defaultIP != "" {
+		transport.TLSClientConfig.ServerName = req.URL.Host
+		req.URL.Host = defaultIP
 	}
 
 	client := http.Client{
