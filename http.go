@@ -57,7 +57,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	}
 
 	if config.TimeoutSeconds == 0 {
-		config.TimeoutSeconds = 5
+		config.TimeoutSeconds = 10
 	}
 
 	// Create request
