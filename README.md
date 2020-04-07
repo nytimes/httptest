@@ -8,9 +8,9 @@ A simple concurrent HTTP testing tool
 
 ### Write a simple test
 
-Create a file `tests.yaml` with the following content:
+Create a file `tests.yml` with the following content:
 
-```yaml
+```yml
 tests:
   - description: 'root'  # Description, will be printed with test results
     request:             # Request to send
@@ -21,17 +21,17 @@ tests:
 
 ### Run tests locally
 
-This program is distributed as a Docker image. To run a container locally:
+This program is distributed as a Docker image. To run a container locally (under a folder contains tests related yml file): 
 ```bash
 docker run --rm \
-    -v $(pwd)/tests.yaml:/tests/tests.yaml \
-    -e "TEST_HOST=example.com" \
+    -v $(pwd)/httpbin.yml:/tests/tests.yml \
+    -e "TEST_HOST=httpbin.org" \
     nytimes/httptest
 ```
 
 You should see an output similar to this:
 ```
-passed:  tests.yaml | root | /
+passed:  tests.yml | root | /
 
 1 passed
 0 failed
@@ -42,13 +42,13 @@ Tip: If your test cases have conditions on environment variables (see `condition
 
 ```
 docker run --rm \
-    -v $(pwd)/tests.yaml:/tests/tests.yaml \
-    -e "TEST_HOST=stg.example.com" \
+    -v $(pwd)/route-abc-tests.yml:/tests/tests.yml \
+    -e "TEST_HOST=www.stg.example.com" \
     -e "TEST_ENV=stg" \
     nytimes/httptest
 ```
 
-By default, the program parses all files in `$(pwd)/tests` recursively.
+By default, if you current working directory is `$(pwd)/tests`,  the program will parse all files in `$(pwd)/tests` recursively.
 This can be changed using an environment variable.
 
 ### Run tests in a CI/CD pipeline
@@ -59,7 +59,7 @@ Examples
 
 - Drone
 
-  ```yaml
+  ```yml
   pipeline:
     tests:
       image: nytimes/httptest
@@ -84,7 +84,7 @@ Examples
 A few global configurations (applied to all tests) can be specified by
 environment variables:
 
-- `TEST_DIRECTORY`: Local directory that contains the test definition YAML
+- `TEST_DIRECTORY`: Local directory that contains the test definition YML
   files. Default: `tests`
 
 - `TEST_HOST`: Host to test. Can be overridden by `request.host` of individual
@@ -95,21 +95,21 @@ environment variables:
   Default: `2`.
 
 - `TEST_DNS_OVERRIDE`: Override the IP address for `TEST_HOST`. Does not work
-  for `request.host` specified in YAML.
+  for `request.host` specified in YML.
 
 - `TEST_PRINT_FAILED_ONLY`: Only print failed tests. Valid values: `false` or
   `true`. Default: `false`.
 
 ### Environment variable substitution
 
-This program supports variable substitution from environment variables in YAML
+This program supports variable substitution from environment variables in YML
 files. This is useful for handling secrets or dynamic values.
 Visit [here](https://github.com/drone/envsubst/blob/master/README) for
 supported functions.
 
 Example:
 
-```yaml
+```yml
 tests:
   - description: 'get current user'
     request:
@@ -129,7 +129,7 @@ Required fields for each test:
 
 All other fields are optional. All matchings are case insensitive.
 
-```yaml
+```yml
 tests:
   - description: 'root'          # Description, will be printed with test results. Required
     conditions:                  # Specify conditions. Test only runs when all conditions are met
