@@ -39,12 +39,13 @@ type Test struct {
 	} `yaml:"conditions"`
 	SkipCertVerification bool `yaml:"skipCertVerification"`
 	Request              struct {
-		Scheme  string            `yaml:"scheme"`
-		Host    string            `yaml:"host"`
-		Method  string            `yaml:"method"`
-		Path    string            `yaml:"path"`
-		Headers map[string]string `yaml:"headers"`
-		Body    string            `yaml:"body"`
+		Scheme  string                   `yaml:"scheme"`
+		Host    string                   `yaml:"host"`
+		Method  string                   `yaml:"method"`
+		Path    string                   `yaml:"path"`
+		Headers map[string]string        `yaml:"headers"`
+		DynamicHeaders map[string]string `yaml:"dynamicHeaders"`
+		Body    string                   `yaml:"body"`
 	} `yaml:"request"`
 	Response struct {
 		StatusCodes []int `yaml:"statusCodes"`
