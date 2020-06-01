@@ -131,39 +131,42 @@ All other fields are optional. All matchings are case insensitive.
 
 ```yaml
 tests:
-  - description: 'root'          # Description, will be printed with test results. Required
-    conditions:                  # Specify conditions. Test only runs when all conditions are met
-      env:                       # Matches an environment variable
-        TEST_ENV: '^(dev|stg)$'  # Environment variable name : regular expression
-    skipCertVerification: false  # Set true to skip verification of server TLS certificate (insecure and not recommended)
+  - description: 'root'                                               # Description, will be printed with test results. Required
+    conditions:                                                       # Specify conditions. Test only runs when all conditions are met
+      env:                                                            # Matches an environment variable
+        TEST_ENV: '^(dev|stg)$'                                       # Environment variable name : regular expression
+    skipCertVerification: false                                       # Set true to skip verification of server TLS certificate (insecure and not recommended)
 
-    request:                     # Request to send
-      scheme: 'https'            # URL scheme. Only http and https are supported. Default: https
-      host: 'example.com'        # Host to test against (this overrides TEST_HOST for this specific test)
-      method: 'POST'             # HTTP method. Default: GET
-      path: '/'                  # Path to hit. Required
-      headers:                   # Headers
+    request:                                                          # Request to send
+      scheme: 'https'                                                 # URL scheme. Only http and https are supported. Default: https
+      host: 'example.com'                                             # Host to test against (this overrides TEST_HOST for this specific test)
+      method: 'POST'                                                  # HTTP method. Default: GET
+      path: '/'                                                       # Path to hit. Required
+      headers:                                                        # Headers
         x-test-header-0: 'abc'
-        x-test: '${REQ_TEST}'    # Environment variable substitution
-      body: ''                   # Request body. Processed as string
+        x-test: '${REQ_TEST}'                                         # Environment variable substitution
+      dynamicHeaders:                                                 # Headers whose values are dynamically computed at runtime
+        x-test-timestamp: now()                                       # Calling a no-arg function to get the header value
+        x-test-signature: sign("key", 123, x-test-timestamp, x-test)  # Functions can also accept literals and the values of previously set headers
+      body: ''                                                        # Request body. Processed as string
 
-    response:                    # Expected response
-      statusCodes: [201]         # List of expected response status codes
-      headers:                   # Expected response headers
-        patterns:                # Match response header patterns
-          server: '^ECS$'        # Header name : regular expression
+    response:                                                         # Expected response
+      statusCodes: [201]                                              # List of expected response status codes
+      headers:                                                        # Expected response headers
+        patterns:                                                     # Match response header patterns
+          server: '^ECS$'                                             # Header name : regular expression
           cache-control: '.+'
-        notPresent:              # Specify headers not expected to exist.
-          - 'set-cookie'         # These are not regular expressions
+        notPresent:                                                   # Specify headers not expected to exist.
+          - 'set-cookie'                                              # These are not regular expressions
           - 'x-frame-options'
         notMatching:
-          set-cookie: ^.*abc.*$  # Specify headers expected to exist but NOT match the given regex
-      body:                      # Response body
-        patterns:                # Response body has to match all patterns in this list in order to pass test
-          - 'charset="utf-8"'    # Regular expressions
+          set-cookie: ^.*abc.*$                                       # Specify headers expected to exist but NOT match the given regex
+      body:                                                           # Response body
+        patterns:                                                     # Response body has to match all patterns in this list in order to pass test
+          - 'charset="utf-8"'                                         # Regular expressions
           - 'Example Domain'
 
-  - description: 'sign up page'  # Second test
+  - description: 'sign up page'                                       # Second test
     request:
       path: '/signup'
     response:
