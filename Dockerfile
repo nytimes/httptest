@@ -11,10 +11,6 @@ WORKDIR /go/src/github.com/nytimes/httptest
 ARG DRONE_BRANCH
 ARG DRONE_COMMIT
 
-# Get Go packages
-RUN apk add --no-cache git
-RUN go get github.com/youmark/pkcs8
-
 # Build application
 RUN go build -a -o /go/bin/httptest \
     -ldflags "-extldflags \"-static\" \
