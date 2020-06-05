@@ -104,7 +104,7 @@ environment variables:
 
 This program supports variable substitution from environment variables in YAML
 files. This is useful for handling secrets or dynamic values.
-Visit [here](https://github.com/drone/envsubst/blob/master/README) for
+Visit [here](https://github.com/drone/envsubst) for
 supported functions.
 
 Example:
