@@ -113,7 +113,7 @@ func preProcessTest(test *Test, defaultHost string) error {
 	}
 
 	// Process the dynamic headers
-	if err := processDynamicHeaders(test.Request.DynamicHeaders, test.Request.Headers); err != nil {
+	if err := ProcessDynamicHeaders(test.Request.DynamicHeaders, test.Request.Headers); err != nil {
 		return err
 	}
 
@@ -125,20 +125,6 @@ func preProcessTest(test *Test, defaultHost string) error {
 	}
 	test.Request.Headers = headers
 
-	return nil
-}
-
-func processDynamicHeaders(dynamicHeaders, staticHeaders map[string]string) error {
-	for name, value := range dynamicHeaders {
-		if _, present := staticHeaders[name]; present {
-			return fmt.Errorf("cannot process dynamic header %s; already defined as static header", name)
-		}
-		var err error
-		staticHeaders[name], err = ProcessDynamicHeader(value, staticHeaders)
-		if err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

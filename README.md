@@ -120,6 +120,32 @@ tests:
       statusCodes: [200]
 ```
 
+### Dynamic headers
+
+In addition to defining header values statically (i.e. when a test is written), there is also support for determining the value of a header at runtime. This feature is useful if the value of a header must be determined when a test runs (for example, a header that must contain a recent timestamp). Such headers are specified as `dynamicHeaders` in the YAML, and each must be accompanied by the name of a function to call and a list of arguments for that function (if required). For example:
+
+```yaml
+dynamicHeaders:
+  x-test-signature:
+    function: myFunction
+    args:
+      - 'arg1'
+      - 'arg2'
+      - 'arg3'
+```
+
+The arguments can be literal strings, environment variables, or values of previously set headers (see examples below). The function definitions are in the file `dynamic.go` and can be added to as necessary. Each function must implement the following function interface:
+
+```go
+type resolveHeader func(existingHeaders map[string]string, args []string) (string, error)
+```
+
+These are the functions that are currently supported:
+|Function|Description|Arguments|
+|--------|-----------|---------|
+|now|Returns the number of seconds since the Unix epoch|none|
+|signStringRS256|Constructs a string from args (delimited by newlines), signs it with the passphrase-encrypted PKCS #8 private key, and returns the signature in base64|encrypted key, passphrase, string part1 (from previously set header), string part2 (literal), string part3 (from previously set header), string part4 (from previously set header)|
+
 ### Full test example
 
 Required fields for each test:
@@ -131,42 +157,51 @@ All other fields are optional. All matchings are case insensitive.
 
 ```yaml
 tests:
-  - description: 'root'                                               # Description, will be printed with test results. Required
-    conditions:                                                       # Specify conditions. Test only runs when all conditions are met
-      env:                                                            # Matches an environment variable
-        TEST_ENV: '^(dev|stg)$'                                       # Environment variable name : regular expression
-    skipCertVerification: false                                       # Set true to skip verification of server TLS certificate (insecure and not recommended)
+  - description: 'root'              # Description, will be printed with test results. Required
+    conditions:                      # Specify conditions. Test only runs when all conditions are met
+      env:                           # Matches an environment variable
+        TEST_ENV: '^(dev|stg)$'      # Environment variable name : regular expression
+    skipCertVerification: false      # Set true to skip verification of server TLS certificate (insecure and not recommended)
 
-    request:                                                          # Request to send
-      scheme: 'https'                                                 # URL scheme. Only http and https are supported. Default: https
-      host: 'example.com'                                             # Host to test against (this overrides TEST_HOST for this specific test)
-      method: 'POST'                                                  # HTTP method. Default: GET
-      path: '/'                                                       # Path to hit. Required
-      headers:                                                        # Headers
+    request:                         # Request to send
+      scheme: 'https'                # URL scheme. Only http and https are supported. Default: https
+      host: 'example.com'            # Host to test against (this overrides TEST_HOST for this specific test)
+      method: 'POST'                 # HTTP method. Default: GET
+      path: '/'                      # Path to hit. Required
+      headers:                       # Headers
         x-test-header-0: 'abc'
-        x-test: '${REQ_TEST}'                                         # Environment variable substitution
-      dynamicHeaders:                                                 # Headers whose values are dynamically computed at runtime
-        x-test-timestamp: now()                                       # Calling a no-arg function to get the header value
-        x-test-signature: sign("key", 123, x-test-timestamp, x-test)  # Functions can also accept literals and the values of previously set headers
-      body: ''                                                        # Request body. Processed as string
+        x-test: '${REQ_TEST}'        # Environment variable substitution
+      dynamicHeaders:                # Headers whose values are determined at runtime (see "Dynamic Headers" section above)
+        x-test-signature:            # Name of the header to set
+          function: signStringRS256  # Function called to determine the header value
+          args:                      # List of arguments for the function (can be omitted for functions that don't take arguments)
+            - '${TEST_KEY}'          # Can use environment variable substitution
+            - '${TEST_PASS}'
+            - x-test-timestamp       # Can use values of previously set headers
+            - '/svc/login'           # Can use literals
+            - x-test-header-0
+            - x-test
+        x-test-timestamp:
+          function: now              # Calling a no-arg function to get the header value
+      body: ''                       # Request body. Processed as string
 
-    response:                                                         # Expected response
-      statusCodes: [201]                                              # List of expected response status codes
-      headers:                                                        # Expected response headers
-        patterns:                                                     # Match response header patterns
-          server: '^ECS$'                                             # Header name : regular expression
+    response:                        # Expected response
+      statusCodes: [201]             # List of expected response status codes
+      headers:                       # Expected response headers
+        patterns:                    # Match response header patterns
+          server: '^ECS$'            # Header name : regular expression
           cache-control: '.+'
-        notPresent:                                                   # Specify headers not expected to exist.
-          - 'set-cookie'                                              # These are not regular expressions
+        notPresent:                  # Specify headers not expected to exist.
+          - 'set-cookie'             # These are not regular expressions
           - 'x-frame-options'
         notMatching:
-          set-cookie: ^.*abc.*$                                       # Specify headers expected to exist but NOT match the given regex
-      body:                                                           # Response body
-        patterns:                                                     # Response body has to match all patterns in this list in order to pass test
-          - 'charset="utf-8"'                                         # Regular expressions
+          set-cookie: ^.*abc.*$      # Specify headers expected to exist but NOT match the given regex
+      body:                          # Response body
+        patterns:                    # Response body has to match all patterns in this list in order to pass test
+          - 'charset="utf-8"'        # Regular expressions
           - 'Example Domain'
 
-  - description: 'sign up page'                                       # Second test
+  - description: 'sign up page'      # Second test
     request:
       path: '/signup'
     response:

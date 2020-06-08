@@ -39,13 +39,13 @@ type Test struct {
 	} `yaml:"conditions"`
 	SkipCertVerification bool `yaml:"skipCertVerification"`
 	Request              struct {
-		Scheme  string                   `yaml:"scheme"`
-		Host    string                   `yaml:"host"`
-		Method  string                   `yaml:"method"`
-		Path    string                   `yaml:"path"`
-		Headers map[string]string        `yaml:"headers"`
-		DynamicHeaders map[string]string `yaml:"dynamicHeaders"`
-		Body    string                   `yaml:"body"`
+		Scheme         string                   `yaml:"scheme"`
+		Host           string                   `yaml:"host"`
+		Method         string                   `yaml:"method"`
+		Path           string                   `yaml:"path"`
+		Headers        map[string]string        `yaml:"headers"`
+		DynamicHeaders map[string]Function      `yaml:"dynamicHeaders"`
+		Body           string                   `yaml:"body"`
 	} `yaml:"request"`
 	Response struct {
 		StatusCodes []int `yaml:"statusCodes"`
@@ -58,6 +58,11 @@ type Test struct {
 			Patterns []string `yaml:"patterns"`
 		}
 	} `yaml:"response"`
+}
+
+type Function struct {
+	Name     string    `yaml:"function"`
+	Args     []string  `yaml:"args,omitempty"`
 }
 
 // ParseAllTestsInDirectory recursively parses all test definition files in a given directory
