@@ -29,15 +29,17 @@ import (
 )
 
 // Process the dynamic headers and add them to the map of all headers
-func ProcessDynamicHeaders(dynamicHeaders map[string]Function, allHeaders map[string]string) error {
-	for name, function := range dynamicHeaders {
-		if _, present := allHeaders[name]; present {
-			return fmt.Errorf("cannot process dynamic header %s; a header with that name is already defined", name)
+func ProcessDynamicHeaders(dynamicHeaders []DynamicHeader, allHeaders map[string]string) error {
+	for _, dynamicHeader := range dynamicHeaders {
+		if _, present := allHeaders[dynamicHeader.Name]; present {
+			return fmt.Errorf("cannot process dynamic header %s; a header with that name is already defined", dynamicHeader.Name)
 		}
-		fn := funcMap[function.Name]
-		args := function.Args
     var err error
-		allHeaders[name], err = fn(allHeaders, args)
+    fn := funcMap[dynamicHeader.Function]
+    if fn == nil {
+      return fmt.Errorf("unknown function %s", dynamicHeader.Function)
+    }
+		allHeaders[dynamicHeader.Name], err = fn(allHeaders, dynamicHeader.Args)
 		if err != nil {
 			return err
 		}
@@ -51,7 +53,7 @@ type resolveHeader func(existingHeaders map[string]string, args []string) (strin
 // Map of strings to dynamic header functions
 var funcMap = map[string]resolveHeader{
   "now": now,
-  "signStringRS256": signStringRS256,
+  "signStringRS256PKCS8": signStringRS256PKCS8,
 }
 
 // Returns the number of seconds since the Unix epoch
@@ -59,14 +61,18 @@ func now(existingHeaders map[string]string, args []string) (string, error) {
 	return strconv.FormatInt(time.Now().Unix(), 10), nil
 }
 
-// Constructs a string from args (delimited by newlines), signs it with the passphrase-encrypted PKCS #8 private key, and returns the signature in base64
-func signStringRS256(existingHeaders map[string]string, args []string) (string, error) {
+// Constructs a string from args (delimited by newlines), signs it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64
+func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (string, error) {
 	// Get the key and passphrase from environment variables
-	key := formatKey(args[0])
-	passphrase := args[1]
-	if key == "" || passphrase == "" {
-		return "", fmt.Errorf("cannot call signStringRS256 function; key and passphrase must be defined in environment")
-	}
+  if args[0] == "" {
+    return "", fmt.Errorf("cannot call signStringRS256PKCS8 function; key must be defined in environment")
+  }
+  passphrase := args[1]
+  var key string
+  var err error
+	if key, err = FormatKey(args[0], passphrase != ""); err != nil {
+    return "", err
+  }
 
 	// Construct the string to sign
   var buffer strings.Builder
@@ -83,11 +89,11 @@ func signStringRS256(existingHeaders map[string]string, args []string) (string, 
 	// Get the key in PEM format
 	pemBlock, _ := pem.Decode([]byte(key))
 
-	// Decrypt the key with the passphrase
-	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
-	if err != nil {
-		return "", fmt.Errorf("unable to parse private key")
-	}
+	// Parse the key, decrypting it if necessary
+  decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
+  if err != nil {
+    return "", fmt.Errorf("unable to parse private key")
+  }
 
 	// Convert decrypted key to RSA key
 	var rsaKey *rsa.PrivateKey
@@ -111,14 +117,23 @@ func signStringRS256(existingHeaders map[string]string, args []string) (string, 
 }
 
 // This function fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
-func formatKey(key string) string {
-  prefix := "-----BEGIN ENCRYPTED PRIVATE KEY-----"
-  postfix := "-----END ENCRYPTED PRIVATE KEY-----"
+func FormatKey(key string, encrypted bool) (string, error) {
+  prefix := "-----BEGIN PRIVATE KEY-----"
+  postfix := "-----END PRIVATE KEY-----"
+  if encrypted {
+    prefix = strings.ReplaceAll(prefix, "PRIVATE", "ENCRYPTED PRIVATE")
+    postfix = strings.ReplaceAll(postfix, "PRIVATE", "ENCRYPTED PRIVATE")
+  }
+
+  if !strings.HasPrefix(key, prefix) {
+    return "", fmt.Errorf("key in invalid format")
+  }
+
   dataStart := strings.Index(key, prefix) + len(prefix)
   dataEnd := strings.Index(key, postfix)
 
   data := key[dataStart:dataEnd]
   formattedData := strings.ReplaceAll(data, " ", "\n")
 
-  return prefix + formattedData + postfix
+  return prefix + formattedData + postfix, nil
 }

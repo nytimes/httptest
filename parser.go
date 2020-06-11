@@ -44,7 +44,7 @@ type Test struct {
 		Method         string                   `yaml:"method"`
 		Path           string                   `yaml:"path"`
 		Headers        map[string]string        `yaml:"headers"`
-		DynamicHeaders map[string]Function      `yaml:"dynamicHeaders"`
+		DynamicHeaders []DynamicHeader          `yaml:"dynamicHeaders"`
 		Body           string                   `yaml:"body"`
 	} `yaml:"request"`
 	Response struct {
@@ -60,8 +60,9 @@ type Test struct {
 	} `yaml:"response"`
 }
 
-type Function struct {
-	Name     string    `yaml:"function"`
+type DynamicHeader struct {
+	Name     string    `yaml:"name"`
+	Function string    `yaml:"function"`
 	Args     []string  `yaml:"args,omitempty"`
 }
 
