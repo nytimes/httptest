@@ -142,11 +142,11 @@ type resolveHeader func(existingHeaders map[string]string, args []string) (strin
 
 These are the functions that are currently supported:
 #### now
-Returns the number of seconds since the Unix epoch
+Returns the number of seconds since the Unix epoch  
 Args: none
 
 #### signStringRS256PKCS8
-Constructs a string from args (delimited by newlines), signs it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64
+Constructs a string from args (delimited by newlines), signs it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64  
 Args:
 - key
 - passphrase (can be empty string if key is not encrypted)
