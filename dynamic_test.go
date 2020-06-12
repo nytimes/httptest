@@ -1,4 +1,4 @@
-package httptest
+package main
 
 import (
 	"testing"
