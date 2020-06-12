@@ -20,6 +20,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -115,6 +116,8 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	return base64.StdEncoding.EncodeToString(signature), nil
 }
 
+var errInvalidKeyFormat = errors.New("key in invalid format")
+
 // This function fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
 func FormatKey(key string, encrypted bool) (string, error) {
 	prefix := "-----BEGIN PRIVATE KEY-----"
@@ -125,7 +128,7 @@ func FormatKey(key string, encrypted bool) (string, error) {
 	}
 
 	if !strings.HasPrefix(key, prefix) {
-		return "", fmt.Errorf("key in invalid format")
+		return "", errInvalidKeyFormat
 	}
 
 	dataStart := strings.Index(key, prefix) + len(prefix)

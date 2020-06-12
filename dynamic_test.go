@@ -11,33 +11,33 @@ abcdef
 ghijkl
 mnopqr
 -----END PRIVATE KEY-----`
+
 	encrypted := `-----BEGIN ENCRYPTED PRIVATE KEY----- abcdef ghijkl mnopqr -----END ENCRYPTED PRIVATE KEY-----`
 	encryptedExpected := `-----BEGIN ENCRYPTED PRIVATE KEY-----
 abcdef
 ghijkl
 mnopqr
 -----END ENCRYPTED PRIVATE KEY-----`
-	var formatKeyTests = []struct {
-		input       string
-		encrypted   bool
-		expected    string
-		expectError bool
+
+	var FormatKeyTests = []struct {
+		input     string
+		encrypted bool
+		expected  string
+		err       error
 	}{
-		{unencrypted, false, unencryptedExpected, false},
-		{encrypted, true, encryptedExpected, false},
-		{unencrypted, true, "", true},
-		{encrypted, false, "", true},
+		{unencrypted, false, unencryptedExpected, nil},
+		{encrypted, true, encryptedExpected, nil},
+		{unencrypted, true, "", errInvalidKeyFormat},
+		{encrypted, false, "", errInvalidKeyFormat},
 	}
-	for _, tc := range formatKeyTests {
+
+	for _, tc := range FormatKeyTests {
 		actual, err := FormatKey(tc.input, tc.encrypted)
 		if actual != tc.expected {
 			t.Errorf("FormatKey(%v, %v): expected %v, actual %v", tc.input, tc.encrypted, tc.expected, actual)
 		}
-		if tc.expectError && err == nil {
-			t.Errorf("FormatKey(%v, %v): expected error, actual %v", tc.input, tc.encrypted, nil)
-		}
-		if !tc.expectError && err != nil {
-			t.Errorf("FormatKey(%v, %v): expected no error, actual %v", tc.input, tc.encrypted, err)
+		if err != tc.err {
+			t.Errorf("FormatKey(%v, %v): expected %v, got: %v", tc.input, tc.encrypted, tc.err, err)
 		}
 	}
 }
