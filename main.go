@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/nytimes/httptest/src"
 )
 
 var (
@@ -36,22 +38,22 @@ func main() {
 	fmt.Printf("httptest: %s %s %s\n", BuildCommit, BuildBranch, BuildTime)
 
 	// Get and apply config
-	config, err := FromEnv()
+	config, err := src.FromEnv()
 	if err != nil {
 		log.Fatalf("error: failed to parse config: %s", err)
 	}
 
-	if err := ApplyConfig(config); err != nil {
+	if err := src.ApplyConfig(config); err != nil {
 		log.Fatalf("error: failed to apply config: %s", err)
 	}
 
 	// Parse and run tests
-	tests, err := ParseAllTestsInDirectory(config.TestDirectory)
+	tests, err := src.ParseAllTestsInDirectory(config.TestDirectory)
 	if err != nil {
 		log.Fatalf("error: failed to parse tests: %s", err)
 	}
 
-	if !RunTests(tests, config) {
+	if !src.RunTests(tests, config) {
 		os.Exit(1)
 	}
 

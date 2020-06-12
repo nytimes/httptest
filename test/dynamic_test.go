@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/nytimes/httptest/src"
 )
 
 func TestFormatKey(t *testing.T) {
@@ -29,7 +31,7 @@ mnopqr
 		{encrypted, false, "", true},
 	}
 	for _, tc := range formatKeyTests {
-		actual, err := FormatKey(tc.input, tc.encrypted)
+		actual, err := src.FormatKey(tc.input, tc.encrypted)
 		if actual != tc.expected {
 			t.Errorf("FormatKey(%v, %v): expected %v, actual %v", tc.input, tc.encrypted, tc.expected, actual)
 		}
