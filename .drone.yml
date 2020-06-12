@@ -14,14 +14,7 @@ steps:
       CGO_ENABLED: 0
     commands:
       - go build
-
-  - name: unit-test
-    image: golang:alpine
-    environment:
-      GOOS: linux
-      CGO_ENABLED: 0
-    commands:
-      - go test ./test/...
+      - go test
 
   - name: test
     image: golang:alpine
