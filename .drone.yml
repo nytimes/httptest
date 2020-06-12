@@ -21,7 +21,7 @@ steps:
       GOOS: linux
       CGO_ENABLED: 0
     commands:
-      go test ./test/...
+      - go test ./test/...
 
   - name: test
     image: golang:alpine
