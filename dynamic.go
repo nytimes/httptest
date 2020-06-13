@@ -29,7 +29,7 @@ import (
 	"github.com/youmark/pkcs8"
 )
 
-// Process the dynamic headers and add them to the map of all headers
+// ProcessDynamicHeaders creates headers based on the function and adds them to the map of all headers
 func ProcessDynamicHeaders(dynamicHeaders []DynamicHeader, allHeaders map[string]string) error {
 	for _, dynamicHeader := range dynamicHeaders {
 		if _, present := allHeaders[dynamicHeader.Name]; present {
@@ -118,7 +118,7 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 var errInvalidKeyFormat = errors.New("key in invalid format")
 
-// This function fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
+// FormatKey fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
 func FormatKey(key string, encrypted bool) (string, error) {
 	prefix := "-----BEGIN PRIVATE KEY-----"
 	postfix := "-----END PRIVATE KEY-----"
