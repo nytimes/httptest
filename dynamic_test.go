@@ -42,6 +42,27 @@ mnopqr
 	}
 }
 
+func TestValidateSignStringRS256PKCS8(t *testing.T) {
+	var tests = []struct {
+		args  []string
+		valid bool
+	}{
+		{[]string{}, false},
+		{[]string{"key"}, false},
+		{[]string{"key", "passphrase"}, false},
+		{[]string{"key", ""}, false},
+		{[]string{"key", "passphrase", "string"}, true},
+		{[]string{"key", "", "string"}, true},
+	}
+
+	for _, tc := range tests {
+		actual := validateSignStringRS256PKCS8(tc.args)
+		if actual != tc.valid {
+			t.Errorf("validateSignStringRS256PKCS8(%s): expected %v, actual %v", tc.args, tc.valid, actual)
+		}
+	}
+}
+
 func TestArgsToStringToSign(t *testing.T) {
 	var tests = []struct {
 		existingHeaders map[string]string
