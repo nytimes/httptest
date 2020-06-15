@@ -24,7 +24,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 	key, passphrase, err := argsToKeyPassphrase(args)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("error calling SignStringRS256PKCS8; %w", err)
 	}
 
 	// Construct the string to sign
@@ -36,7 +36,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	// Parse the key, decrypting it if necessary
 	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
 	if err != nil {
-		return "", fmt.Errorf("error calling signStringRS256PKCS8; unable to parse private key")
+		return "", fmt.Errorf("error calling signStringRS256PKCS8; unable to parse private key: %w", err)
 	}
 
 	// Convert decrypted key to RSA key
@@ -53,14 +53,14 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	// Sign the hashed header with the RSA key
 	signature, err := rsa.SignPKCS1v15(nil, rsaKey, crypto.SHA256, hash[:])
 	if err != nil {
-		return "", fmt.Errorf("error calling signStringRS256PKCS8; could not sign header")
+		return "", fmt.Errorf("error calling signStringRS256PKCS8; could not sign header: %w", err)
 	}
 
 	// Return signature in base64 encoding
 	return base64.StdEncoding.EncodeToString(signature), nil
 }
 
-// Build the string we want to sign from the args and existing headers.
+// Builds the string we want to sign from the args as literals and from existing headers.
 func argsToStringToSign(existingHeaders map[string]string, args []string) string {
 	var buffer strings.Builder
 
@@ -76,7 +76,7 @@ func argsToStringToSign(existingHeaders map[string]string, args []string) string
 	return buffer.String()
 }
 
-// Get the key and passphrase from environment variables.
+// Gets the key and passphrase from the args.
 func argsToKeyPassphrase(args []string) (string, string, error) {
 	if args[0] == "" {
 		return "", "", fmt.Errorf("error calling signStringRS256PKCS8; key is empty")
@@ -97,7 +97,7 @@ func validateSignStringRS256PKCS8(args []string) bool {
 	return len(args) > 2
 }
 
-// formatKey fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
+// Fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling.
 func formatKey(key string, encrypted bool) (string, error) {
 	prefix := "-----BEGIN PRIVATE KEY-----"
 	postfix := "-----END PRIVATE KEY-----"
