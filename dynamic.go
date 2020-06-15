@@ -78,14 +78,34 @@ func argsToStringToSign(existingHeaders map[string]string, args []string) string
 	return buffer.String()
 }
 
+// Get the key and passphrase from environment variables
+func argsToKeyPassphrase(args []string) (string, string, error) {
+	if args[0] == "" {
+		return "", "", fmt.Errorf("error calling signStringRS256PKCS8; key is empty")
+	}
+
+	passphrase := args[1]
+
+	key, err := FormatKey(args[0], passphrase != "")
+	if err != nil {
+		return "", "", err
+	}
+
+	return key, passphrase, nil
+}
+
+// Validates the required number of arguments are provided (key, passphrase, and a string to sign)
+func validateSignStringRS256PKCS8(args []string) bool {
+	return len(args) > 2
+}
+
 // Constructs a string from args (delimited by newlines), signs it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64
 func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (string, error) {
-	// Get the key and passphrase from environment variables
-	if args[0] == "" {
-		return "", fmt.Errorf("cannot call signStringRS256PKCS8 function; key must be defined in environment")
+	if !validateSignStringRS256PKCS8(args) {
+		return "", fmt.Errorf("error calling signStringRS256PKCS8; at least 3 arguments are needed (key, passphrase, and a string to sign)")
 	}
-	passphrase := args[1]
-	key, err := FormatKey(args[0], passphrase != "")
+
+	key, passphrase, err := argsToKeyPassphrase(args)
 	if err != nil {
 		return "", err
 	}
@@ -99,7 +119,7 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	// Parse the key, decrypting it if necessary
 	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
 	if err != nil {
-		return "", fmt.Errorf("unable to parse private key")
+		return "", fmt.Errorf("error calling signStringRS256PKCS8; unable to parse private key")
 	}
 
 	// Convert decrypted key to RSA key
@@ -107,7 +127,7 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	var ok bool
 	rsaKey, ok = decryptedKey.(*rsa.PrivateKey)
 	if !ok {
-		return "", fmt.Errorf("key is not an RSA key")
+		return "", fmt.Errorf("error calling signStringRS256PKCS8; key is not an RSA key")
 	}
 
 	// Hash the string using SHA256
@@ -116,7 +136,7 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	// Sign the hashed header with the RSA key
 	signature, err := rsa.SignPKCS1v15(nil, rsaKey, crypto.SHA256, hash[:])
 	if err != nil {
-		return "", fmt.Errorf("could not sign header")
+		return "", fmt.Errorf("error calling signStringRS256PKCS8; could not sign header")
 	}
 
 	// Return signature in base64 encoding
