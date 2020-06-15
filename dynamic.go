@@ -86,7 +86,7 @@ func argsToKeyPassphrase(args []string) (string, string, error) {
 
 	passphrase := args[1]
 
-	key, err := FormatKey(args[0], passphrase != "")
+	key, err := formatKey(args[0], passphrase != "")
 	if err != nil {
 		return "", "", err
 	}
@@ -145,8 +145,8 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 var errInvalidKeyFormat = errors.New("key in invalid format")
 
-// FormatKey fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
-func FormatKey(key string, encrypted bool) (string, error) {
+// formatKey fixes the issue of newlines being converted to spaces in multiline environment variables upon unmarshalling
+func formatKey(key string, encrypted bool) (string, error) {
 	prefix := "-----BEGIN PRIVATE KEY-----"
 	postfix := "-----END PRIVATE KEY-----"
 	if encrypted {

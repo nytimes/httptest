@@ -32,12 +32,12 @@ mnopqr
 	}
 
 	for _, tc := range FormatKeyTests {
-		actual, err := FormatKey(tc.input, tc.encrypted)
+		actual, err := formatKey(tc.input, tc.encrypted)
 		if actual != tc.expected {
-			t.Errorf("FormatKey(%v, %v): expected %v, actual %v", tc.input, tc.encrypted, tc.expected, actual)
+			t.Errorf("formatKey(%v, %v): expected %v, actual %v", tc.input, tc.encrypted, tc.expected, actual)
 		}
 		if err != tc.err {
-			t.Errorf("FormatKey(%v, %v): expected %v, got: %v", tc.input, tc.encrypted, tc.err, err)
+			t.Errorf("formatKey(%v, %v): expected %v, got: %v", tc.input, tc.encrypted, tc.err, err)
 		}
 	}
 }
