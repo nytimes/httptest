@@ -41,3 +41,50 @@ mnopqr
 		}
 	}
 }
+
+func TestArgsToStringToSign(t *testing.T) {
+	var tests = []struct {
+		existingHeaders map[string]string
+		args            []string
+		expected        string
+	}{
+		{
+			map[string]string{},
+			[]string{""},
+			"\n",
+		},
+		{
+			map[string]string{},
+			[]string{"my string to sign"},
+			"my string to sign\n",
+		},
+		{
+			map[string]string{
+				"x-previous-header": "123",
+			},
+			[]string{"my string to sign"},
+			"my string to sign\n",
+		},
+		{
+			map[string]string{
+				"x-previous-header": "123",
+			},
+			[]string{"x-previous-header"},
+			"123\n",
+		},
+		{
+			map[string]string{
+				"x-previous-header": "123",
+			},
+			[]string{"x-previous-header", "my string"},
+			"123\nmy string\n",
+		},
+	}
+
+	for _, tc := range tests {
+		actual := argsToStringToSign(tc.existingHeaders, tc.args)
+		if actual != tc.expected {
+			t.Errorf("argsToStringToSign(%s, %s): expected %s, actual %s", tc.existingHeaders, tc.args, tc.expected, actual)
+		}
+	}
+}
