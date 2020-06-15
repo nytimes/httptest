@@ -62,6 +62,22 @@ func now(existingHeaders map[string]string, args []string) (string, error) {
 	return strconv.FormatInt(time.Now().Unix(), 10), nil
 }
 
+// Build the string we want to sign from the args and existing headers
+func argsToStringToSign(existingHeaders map[string]string, args []string) string {
+	var buffer strings.Builder
+
+	for _, arg := range args {
+		if value, ok := existingHeaders[arg]; ok {
+			buffer.WriteString(value)
+		} else {
+			buffer.WriteString(arg)
+		}
+		buffer.WriteRune('\n')
+	}
+
+	return buffer.String()
+}
+
 // Constructs a string from args (delimited by newlines), signs it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64
 func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (string, error) {
 	// Get the key and passphrase from environment variables
@@ -75,16 +91,7 @@ func signStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	}
 
 	// Construct the string to sign
-	var buffer strings.Builder
-	buffer.WriteString(existingHeaders[args[2]])
-	buffer.WriteRune('\n')
-	buffer.WriteString(args[3])
-	buffer.WriteRune('\n')
-	buffer.WriteString(existingHeaders[args[4]])
-	buffer.WriteRune('\n')
-	buffer.WriteString(existingHeaders[args[5]])
-	buffer.WriteRune('\n')
-	stringToSign := buffer.String()
+	stringToSign := argsToStringToSign(existingHeaders, args)
 
 	// Get the key in PEM format
 	pemBlock, _ := pem.Decode([]byte(key))
