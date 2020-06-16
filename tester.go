@@ -112,6 +112,11 @@ func preProcessTest(test *Test, defaultHost string) error {
 		return fmt.Errorf("request.path must start with /")
 	}
 
+	// Process the dynamic headers
+	if err := ProcessDynamicHeaders(test.Request.DynamicHeaders, test.Request.Headers); err != nil {
+		return err
+	}
+
 	// Convert header fields to lowercase
 	// https://tools.ietf.org/html/rfc7540#section-8.1.2
 	headers := map[string]string{}

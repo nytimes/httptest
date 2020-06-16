@@ -38,6 +38,22 @@
   version = "v0.0.8"
 
 [[projects]]
+  digest = "1:1c81a3a4880ad32382ab73d8bf43eb9a75132a9055354cd08f492fea9b2e4598"
+  name = "github.com/youmark/pkcs8"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1be2e3e5546da8a58903ff4adcfab015022538ea"
+  version = "v1.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
+  name = "golang.org/x/crypto"
+  packages = ["pbkdf2"]
+  pruneopts = "UT"
+  revision = "06a226fb4e3765ef3f48aa2852b401bc7b98e981"
+
+[[projects]]
   branch = "master"
   digest = "1:730ba27cd66db3b98ec8f51a6f20d45ec277d490cca36b1f54e31d3fcaf4840e"
   name = "golang.org/x/sys"
@@ -59,6 +75,7 @@
   input-imports = [
     "github.com/drone/envsubst",
     "github.com/fatih/color",
+    "github.com/youmark/pkcs8",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"

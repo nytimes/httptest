@@ -13,8 +13,8 @@ steps:
       GOOS: linux
       CGO_ENABLED: 0
     commands:
-      - go build
       - go test
+      - go build
 
   - name: test
     image: golang:alpine
@@ -25,7 +25,7 @@ steps:
       TEST_HOST: httpbin.org
       TEST_ENV: dev
     commands:
-      - go run *.go
+      - ./httptest
 
   - name: publish-dev
     image: plugins/docker
