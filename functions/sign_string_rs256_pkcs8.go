@@ -19,7 +19,7 @@ var errInvalidKeyFormat = errors.New("key in invalid format")
 // signing it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64.
 func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (string, error) {
 	if !validateSignStringRS256PKCS8(args) {
-		return "", fmt.Errorf("error calling signStringRS256PKCS8; at least 3 arguments are needed (key, passphrase, and a string to sign)")
+		return "", fmt.Errorf("error calling SignStringRS256PKCS8; at least 3 arguments are needed (key, passphrase, and a string to sign)")
 	}
 
 	key, passphrase, err := argsToKeyPassphrase(args)
@@ -28,7 +28,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	}
 
 	// Construct the string to sign
-	stringToSign := argsToStringToSign(existingHeaders, args)
+	stringToSign := argsToStringToSign(existingHeaders, args[2:])
 
 	// Get the key in PEM format
 	pemBlock, _ := pem.Decode([]byte(key))
@@ -36,7 +36,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	// Parse the key, decrypting it if necessary
 	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
 	if err != nil {
-		return "", fmt.Errorf("error calling signStringRS256PKCS8; unable to parse private key: %w", err)
+		return "", fmt.Errorf("error calling SignStringRS256PKCS8; unable to parse private key: %w", err)
 	}
 
 	// Convert decrypted key to RSA key
@@ -44,7 +44,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	var ok bool
 	rsaKey, ok = decryptedKey.(*rsa.PrivateKey)
 	if !ok {
-		return "", fmt.Errorf("error calling signStringRS256PKCS8; key is not an RSA key")
+		return "", fmt.Errorf("error calling SignStringRS256PKCS8; key is not an RSA key")
 	}
 
 	// Hash the string using SHA256
@@ -53,7 +53,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	// Sign the hashed header with the RSA key
 	signature, err := rsa.SignPKCS1v15(nil, rsaKey, crypto.SHA256, hash[:])
 	if err != nil {
-		return "", fmt.Errorf("error calling signStringRS256PKCS8; could not sign header: %w", err)
+		return "", fmt.Errorf("error calling SignStringRS256PKCS8; could not sign header: %w", err)
 	}
 
 	// Return signature in base64 encoding
@@ -79,7 +79,7 @@ func argsToStringToSign(existingHeaders map[string]string, args []string) string
 // Gets the key and passphrase from the args.
 func argsToKeyPassphrase(args []string) (string, string, error) {
 	if args[0] == "" {
-		return "", "", fmt.Errorf("error calling signStringRS256PKCS8; key is empty")
+		return "", "", fmt.Errorf("error calling SignStringRS256PKCS8; key is empty")
 	}
 
 	passphrase := args[1]

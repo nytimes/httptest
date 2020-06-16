@@ -53,6 +53,8 @@ func TestValidateSignStringRS256PKCS8(t *testing.T) {
 		{[]string{"key", ""}, false},
 		{[]string{"key", "passphrase", "string"}, true},
 		{[]string{"key", "", "string"}, true},
+		{[]string{"key", "passphrase", "string", "string"}, true},
+		{[]string{"key", "", "string", "string", "string", "string"}, true},
 	}
 
 	for _, tc := range tests {
