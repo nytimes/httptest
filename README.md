@@ -153,10 +153,7 @@ Constructs a string from args (delimited by newlines), signs it with the (possib
 Args:
 - key
 - passphrase (can be empty string if key is not encrypted)
-- string part1 (from previously set header)
-- string part2 (literal)
-- string part3 (from previously set header)
-- string part4 (from previously set header)
+- string(s)... (any amount of strings, from previously set headers or literal values)
 
 ### Full test example
 
