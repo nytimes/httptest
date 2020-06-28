@@ -11,6 +11,13 @@ categories:
     label: 'docs'
   - title: 'Other'
     label: 'other'
+template: |
+  # Changelog
+  
+  $CHANGES
+
+  Changes since previous release: https://github.com/nytimes/httptest/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+# BELOW: actions only configuration not in use
 version-resolver:
   major:
     labels:
@@ -19,9 +26,3 @@ version-resolver:
     labels:
       - 'new feature'
   default: patch
-template: |
-  # Changelog
-  
-  $CHANGES
-
-  Changes since previous release: https://github.com/nytimes/httptest/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
