@@ -81,19 +81,19 @@ func PostData(existingHeaders map[string]string, args []string) (string, error) 
 }
 
 // Gets the URL and (optional) responseElement from the args.
-func argsToURLResponseElement(args []string) (string, string, error) {
+func argsToURLResponseElement(args []string) (url, responseElement string, err error) {
 	if args[0] == "" {
-		return "", "", errURLEmpty
+		err = errURLEmpty
+		return
 	}
 
-	url := args[0]
-	responseElement := ""
+	url = args[0]
 
 	if len(args) > 1 {
 		responseElement = args[1]
 	}
 
-	return url, responseElement, nil
+	return
 }
 
 // Concatenates the rest of the args (literal strings or existing header values), delimiting with '&'.
