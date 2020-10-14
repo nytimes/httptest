@@ -8,7 +8,7 @@ import (
 
 const testURL = "http://httpbin.org/post"
 
-const testResponse1 = `{
+const testComplexResponse = `{
 "args": {},
 "data": "",
 "files": {},
@@ -36,10 +36,12 @@ const testResponse1 = `{
 }
 `
 
-const testResponse2 = `[
+const testJSONArray = `[
 "a", "b", "c"
 ]
 `
+
+const testBadResponse = `["a", "b", "c"`
 
 func TestPostFormURLEncoded(t *testing.T) {
 	var tests = []struct {
@@ -70,7 +72,7 @@ func TestPostFormURLEncoded(t *testing.T) {
 			map[string]string{},
 			[]string{testURL, "foo"},
 			"",
-			errors.New("error: element foo not found in response body"),
+			nil,
 		},
 		{
 			map[string]string{},
@@ -162,7 +164,7 @@ func TestArgsToRequestBody(t *testing.T) {
 	}
 }
 
-func TestRetrieveElementTree(t *testing.T) {
+func TestRetrieveElement(t *testing.T) {
 	var tests = []struct {
 		json     string
 		element  string
@@ -170,240 +172,136 @@ func TestRetrieveElementTree(t *testing.T) {
 		err      error
 	}{
 		{
-			testResponse1,
+			testComplexResponse,
 			"url",
 			"https://httpbin.org/post",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"integer",
 			"-5",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"decimal",
 			"3.14",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"boolean",
 			"true",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"json",
-			"null",
+			"",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"data",
 			"",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"files",
 			"{}",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"headers",
 			`{"Accept":"*/*","Content-Length":"19","Content-Type":"application/x-www-form-urlencoded"}`,
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"headers.Content-Length",
 			"19",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"form.names",
 			`["a","b"]`,
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"form.names.1",
 			"b",
 			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"nested.object.data",
 			"123",
 			nil,
 		},
 		{
-			testResponse2,
+			testJSONArray,
 			"1",
 			"b",
 			nil,
 		},
+		// non-existent values
 		{
-			testResponse1,
+			testComplexResponse,
 			"headers.User-Agent",
 			"",
-			errors.New("error: element User-Agent not found in response body"),
+			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"form.names.2",
 			"",
-			errors.New("JSON array index out of bounds: 2"),
+			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"form.names.foo",
 			"",
-			errors.New("invalid index for JSON array: foo"),
+			nil,
 		},
 		{
-			testResponse1,
+			testComplexResponse,
 			"nested.object.bogus",
 			"",
-			errors.New("error: element bogus not found in response body"),
+			nil,
 		},
 		{
-			testResponse2,
+			testJSONArray,
 			"3",
 			"",
-			errors.New("JSON array index out of bounds: 3"),
+			nil,
 		},
+		// negative index
 		{
-			testResponse1,
+			testComplexResponse,
 			"form.names.-1",
 			"",
-			errors.New("JSON array index out of bounds: -1"),
+			nil,
+		},
+		{
+			testBadResponse,
+			"",
+			"",
+			errors.New("invalid JSON"),
 		},
 	}
 
 	for _, tc := range tests {
-		actual, err := retrieveElementTree([]byte(tc.json), tc.element)
+		actual, err := retrieveElement([]byte(tc.json), tc.element)
 		if string(actual) != tc.expected {
-			t.Errorf("retrieveElementTree(%v, %v): expected %v, actual %v", tc.json, tc.element, tc.expected, actual)
+			t.Errorf("retrieveElement(%v, %v): expected %v, actual %v", tc.json, tc.element, tc.expected, actual)
 		}
 		if err != tc.err && err.Error() != tc.err.Error() {
-			t.Errorf("retrieveElementTree(%v, %v): expected %v, got: %v", tc.json, tc.element, tc.err, err)
-		}
-	}
-}
-
-func TestJsonToString(t *testing.T) {
-	object := `{"foo":"bar","abc":"123"}`
-	array := `[{"foo":"bar"},{"abc":"123"}]`
-	stringPrimitive := `"foo"`
-	numberPrimitive := `3.14`
-	booleanPrimitive := `true`
-
-	var tests = []struct {
-		rawJSON  []byte
-		expected string
-		err      error
-	}{
-		{
-			[]byte(object),
-			object,
-			nil,
-		},
-		{
-			[]byte(array),
-			array,
-			nil,
-		},
-		{
-			[]byte(stringPrimitive),
-			stringPrimitive[1 : len(stringPrimitive)-1],
-			nil,
-		},
-		{
-			[]byte(numberPrimitive),
-			numberPrimitive,
-			nil,
-		},
-		{
-			[]byte(booleanPrimitive),
-			booleanPrimitive,
-			nil,
-		},
-	}
-
-	for _, tc := range tests {
-		actual, err := jsonToBytes(tc.rawJSON)
-		if string(actual) != tc.expected {
-			t.Errorf("jsonToBytes(%v): expected %v, actual %v", tc.rawJSON, tc.expected, actual)
-		}
-		if err != tc.err && err.Error() != tc.err.Error() {
-			t.Errorf("jsonToBytes(%v): expected %v, got: %v", tc.rawJSON, tc.err, err)
-		}
-	}
-}
-
-func TestIsJSONObject(t *testing.T) {
-	object := `{"foo":"bar","abc":"123"}`
-	notObject1 := `foo`
-	notObject2 := `[{"foo":"bar"},{"abc":"123"}]`
-
-	var tests = []struct {
-		str      []byte
-		expected bool
-	}{
-		{
-			[]byte(object),
-			true,
-		},
-		{
-			[]byte(notObject1),
-			false,
-		},
-		{
-			[]byte(notObject2),
-			false,
-		},
-	}
-
-	for _, tc := range tests {
-		actual := isJSONObject([]byte(tc.str))
-		if actual != tc.expected {
-			t.Errorf("isJSONObject(%v): expected %v, actual %v", tc.str, tc.expected, actual)
-		}
-	}
-}
-
-func TestIsJSONArray(t *testing.T) {
-	array := `[{"foo":"bar"},{"abc":"123"}]`
-	notArray1 := `3.14`
-	notArray2 := `{"foo":"bar","abc":"123"}`
-
-	var tests = []struct {
-		str      []byte
-		expected bool
-	}{
-		{
-			[]byte(array),
-			true,
-		},
-		{
-			[]byte(notArray1),
-			false,
-		},
-		{
-			[]byte(notArray2),
-			false,
-		},
-	}
-
-	for _, tc := range tests {
-		actual := isJSONArray([]byte(tc.str))
-		if actual != tc.expected {
-			t.Errorf("isJSONArray(%v): expected %v, actual %v", tc.str, tc.expected, actual)
+			t.Errorf("retrieveElement(%v, %v): expected %v, got: %v", tc.json, tc.element, tc.err, err)
 		}
 	}
 }
