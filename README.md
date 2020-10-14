@@ -155,12 +155,12 @@ Args:
 - passphrase (can be empty string if key is not encrypted)
 - string(s)... (any amount of strings, from previously set headers or literal values)
 
-#### postData
-Sends an HTTP POST request to the given URL, returns either the whole response body or a specific JSON element, and treats the remaining arguments as data
+#### postFormURLEncoded
+Sends an HTTP POST request to the given URL (with Content-Type `application/x-www-form-urlencoded`), returns either the whole response body or a specific JSON element, and treats the remaining arguments as data
 
 Args:
 - url (the URL to send the request to)
-- element (the specific JSON element to return from the response body; use an empty string for the whole response body, and note that the whole response body will always be returned for arrays)
+- element (a dot-delimited string representing the specific JSON element to return from the response body, or an empty string for the whole response body)
 - string(s)... (any amount of strings, from previously set headers or literal values, which will be concatenated and delimited with '&' for the request body)
 
 #### concat
@@ -207,10 +207,10 @@ tests:
             - x-test-header-0
             - x-test
         - name: x-test-token
-          function: postData                   # Function called to retrieve the header value from an API
+          function: postFormURLEncoded         # Function called to retrieve the header value from an API
           args:
             - '${TOKEN_URL}'                   # The URL to POST to
-            - 'id_token'                       # The element to return from the JSON response body; use '' for the whole response body
+            - 'results.7.token.id_token'       # The dot-delimited string representing an element to return from the JSON response body; use integers for array elements or '' for the whole response body
             - 'client_secret=${CLIENT_SECRET}' # Can use literals, environment variables, or a combination
             - x-test-timestamp                 # Can use values of previously set headers
             - 'client_id=123'                  # These arguments will be combined to send 'client_secret=${CLIENT_SECRET}&x-test-timestamp&client_id=123' in the body of the request
@@ -218,7 +218,7 @@ tests:
           function: concat                     # Function that concatenates strings, either literals or values from previously set headers
           args:
             - 'Bearer '
-            - Token
+            - x-test-token
       body: ''                                 # Request body. Processed as string
 
     response:                                  # Expected response
