@@ -1,8 +1,6 @@
 package functions
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -12,6 +10,7 @@ import (
 	"time"
 
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/pretty"
 )
 
 const timeoutSeconds = 10 // the max number of seconds to wait for a response
@@ -77,17 +76,9 @@ func argsToRequestBody(existingHeaders map[string]string, args []string) url.Val
 
 func retrieveElement(data []byte, field string) (string, error) {
 	if !gjson.ValidBytes(data) {
-		return "", fmt.Errorf("invalid json")
+		return "", fmt.Errorf("invalid JSON")
 	}
 
-	value := []byte(gjson.GetBytes(data, field).String())
-
-	buffer := new(bytes.Buffer)
-	err := json.Compact(buffer, value)
-	if err != nil {
-		// this is a primitive type
-		return string(value), nil
-	}
-
-	return buffer.String(), nil
+	result := gjson.GetBytes(data, field).String()
+	return string(pretty.Ugly([]byte(result))), nil
 }
