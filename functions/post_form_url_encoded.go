@@ -145,14 +145,12 @@ func jsonToBytes(rawJSON []byte) ([]byte, error) {
 
 // Returns whether the string represented by the byte slice is a JSON object
 func isJSONObject(str []byte) bool {
-	test := make(map[string]json.RawMessage)
-	err := json.Unmarshal(str, &test)
-	return err == nil
+	var test map[string]json.RawMessage
+	return json.Unmarshal(str, &test) == nil
 }
 
 // Returns whether the string represented by the byte slice is a JSON array
 func isJSONArray(str []byte) bool {
 	var test []interface{}
-	err := json.Unmarshal(str, &test)
-	return err == nil
+	return json.Unmarshal(str, &test) == nil
 }
