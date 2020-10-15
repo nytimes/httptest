@@ -25,7 +25,7 @@ This program is distributed as a Docker image. To run a container locally (under
 ```bash
 docker run --rm \
     -v $(pwd)/httpbin.yml:/tests/tests.yml \
-    -e "TEST_HOST=httpbin.org" \
+    -e "TEST_HOST=example.com" \
     nytimes/httptest
 ```
 
@@ -48,7 +48,7 @@ docker run --rm \
     nytimes/httptest
 ```
 
-By default, if you current working directory is `$(pwd)/tests`,  the program will parse all files in `$(pwd)/tests` recursively.
+By default, if your current working directory is `$(pwd)/tests`,  the program will parse all files in `$(pwd)/tests` recursively.
 This can be changed using an environment variable.
 
 ### Run tests in a CI/CD pipeline
@@ -84,7 +84,7 @@ Examples
 A few global configurations (applied to all tests) can be specified by
 environment variables:
 
-- `TEST_DIRECTORY`: Local directory that contains the test definition YML
+- `TEST_DIRECTORY`: Local directory that contains the test definition YML or YAML
   files. Default: `tests`
 
 - `TEST_HOST`: Host to test. Can be overridden by `request.host` of individual
