@@ -293,6 +293,12 @@ func TestRetrieveElement(t *testing.T) {
 			"",
 			errors.New("invalid JSON"),
 		},
+		{
+			testJSONArray,
+			"",
+			`["a","b","c"]`,
+			nil,
+		},
 	}
 
 	for _, tc := range tests {

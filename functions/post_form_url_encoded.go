@@ -79,6 +79,12 @@ func retrieveElement(data []byte, field string) (string, error) {
 		return "", fmt.Errorf("invalid JSON")
 	}
 
-	result := gjson.GetBytes(data, field).String()
+	var result string
+	if field == "" {
+		result = string(data)
+	} else {
+		result = gjson.GetBytes(data, field).String()
+	}
+
 	return string(pretty.Ugly([]byte(result))), nil
 }
