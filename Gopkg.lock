@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:c150032ad5f0d37e884ce6428425292f1f866fd9c3fc4661a1ca539fda85460c"
+  digest = "1:bc600a69aad2c31bdd8a96434e4c4977ac7f6e059fbf8c3c359d5327ccbe0bc3"
   name = "github.com/drone/envsubst"
   packages = [
     ".",
@@ -36,6 +36,30 @@
   pruneopts = "UT"
   revision = "1311e847b0cb909da63b5fecfb5370aa66236465"
   version = "v0.0.8"
+
+[[projects]]
+  digest = "1:ba1f9f7c24257683efc7f6fe8336340fb861751aa1eda0c17ed4a9723a8fe0be"
+  name = "github.com/tidwall/gjson"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "45d8d3b98f86305c48ae80455ebd56773195ec72"
+  version = "v1.6.1"
+
+[[projects]]
+  digest = "1:8453ddbed197809ee8ca28b06bd04e127bec9912deb4ba451fea7a1eca578328"
+  name = "github.com/tidwall/match"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "33827db735fff6510490d69a8622612558a557ed"
+  version = "v1.0.1"
+
+[[projects]]
+  digest = "1:f63bab79e68e805cdd9bf70daa09e8c430cfbddf29d14b567a92fb12581b9b95"
+  name = "github.com/tidwall/pretty"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ef453c788d6a371829f4f9967b014b2b81856df5"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:1c81a3a4880ad32382ab73d8bf43eb9a75132a9055354cd08f492fea9b2e4598"
@@ -75,6 +99,8 @@
   input-imports = [
     "github.com/drone/envsubst",
     "github.com/fatih/color",
+    "github.com/tidwall/gjson",
+    "github.com/tidwall/pretty",
     "github.com/youmark/pkcs8",
     "gopkg.in/yaml.v2",
   ]
