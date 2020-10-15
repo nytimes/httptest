@@ -166,7 +166,7 @@ Args:
 ##### JSON Query Syntax
 The element to return from the JSON response body is specified by a dot-delimited string representing the path to the element. Each part of this string is a single step in that path, and array access is handled by providing a zero-based index. If the element selected has a primitive value, that value is returned. If the element selected is a JSON object or array, that object/array is returned in compact form (insignificant whitespace removed). To return the entire JSON response body, use an empty string.
 
-Examples:  
+**Examples:**  
 **Primitive data**  
 JSON:
 ```json
@@ -201,15 +201,15 @@ JSON:
 {
     "nested": {
         "array": [
-            "first": "abc",
-            "second": "def",
-            "third": "ghi"
+            "abc",
+            "def",
+            "ghi"
         ]
     }
 }
 ```
 Query: 'nested.array'  
-Result: ["first":"abc","second":"def","third":"ghi"]
+Result: ["abc","def","ghi"]
 
 **Array element**  
 JSON:
@@ -217,9 +217,9 @@ JSON:
 {
     "nested": {
         "array": [
-            "first": "abc",
-            "second": "def",
-            "third": "ghi"
+            "abc",
+            "def",
+            "ghi"
         ]
     }
 }
