@@ -46,4 +46,6 @@ type resolveHeader func(existingHeaders map[string]string, args []string) (strin
 var funcMap = map[string]resolveHeader{
 	"now":                  functions.Now,
 	"signStringRS256PKCS8": functions.SignStringRS256PKCS8,
+	"postFormURLEncoded":   functions.PostFormURLEncoded,
+	"concat":               functions.Concat,
 }

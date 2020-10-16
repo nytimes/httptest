@@ -13,8 +13,8 @@ steps:
       GOOS: linux
       CGO_ENABLED: 0
     commands:
-      - go test
       - go build
+      - go test ./...
 
   - name: test
     image: golang:alpine
