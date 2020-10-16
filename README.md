@@ -168,7 +168,7 @@ The element to return from the JSON response body is specified by a dot-delimite
 
 **Examples:**  
 **Primitive data**  
-JSON:
+Response body:
 ```json
 {
     "nested": {
@@ -182,7 +182,7 @@ Query: 'nested.object.data'
 Result: 123
 
 **Object**  
-JSON:
+Response body:
 ```json
 {
     "nested": {
@@ -196,7 +196,7 @@ Query: 'nested.object'
 Result: {"data":123}
 
 **Array**  
-JSON:
+Response body:
 ```json
 {
     "nested": {
@@ -212,7 +212,7 @@ Query: 'nested.array'
 Result: ["abc","def","ghi"]
 
 **Array element**  
-JSON:
+Response body:
 ```json
 {
     "nested": {
@@ -228,18 +228,12 @@ Query: 'nested.array.1'
 Result: def
 
 **Whole response**  
-JSON:
-```json
-{
-    "nested": {
-        "object": {
-            "data": 123
-        }
-    }
-}
+Response body:
+```
+Just a normal, non-JSON response
 ```
 Query: ''  
-Result: {"nested":{"object":{"data":123}}}
+Result: Just a normal, non-JSON response
 
 #### concat
 Concatenates the arguments into a single string

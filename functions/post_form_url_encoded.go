@@ -75,16 +75,20 @@ func argsToRequestBody(existingHeaders map[string]string, args []string) url.Val
 }
 
 func retrieveElement(data []byte, field string) (string, error) {
-	if !gjson.ValidBytes(data) {
-		return "", fmt.Errorf("invalid JSON")
-	}
+	validJSON := gjson.ValidBytes(data)
 
-	var result string
 	if field == "" {
-		result = string(data)
+		if validJSON {
+			return string(pretty.Ugly(data)), nil
+		} else {
+			return string(data), nil
+		}
 	} else {
-		result = gjson.GetBytes(data, field).String()
+		if validJSON {
+			result := gjson.GetBytes(data, field).String()
+			return string(pretty.Ugly([]byte(result))), nil
+		} else {
+			return "", fmt.Errorf("invalid JSON")
+		}
 	}
-
-	return string(pretty.Ugly([]byte(result))), nil
 }

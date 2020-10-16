@@ -43,6 +43,16 @@ const testJSONArray = `[
 
 const testBadResponse = `["a", "b", "c"`
 
+const testBadJsonResponse = `{
+"nested": {
+	"object": {
+		"data": "123"
+	}
+}
+`
+
+const testStringResponse = "just a normal string"
+
 func TestPostFormURLEncoded(t *testing.T) {
 	var tests = []struct {
 		existingHeaders map[string]string
@@ -290,14 +300,32 @@ func TestRetrieveElement(t *testing.T) {
 		{
 			testBadResponse,
 			"",
-			"",
-			errors.New("invalid JSON"),
+			testBadResponse,
+			nil,
 		},
 		{
 			testJSONArray,
 			"",
 			`["a","b","c"]`,
 			nil,
+		},
+		{
+			testBadJsonResponse,
+			"nested.object.data",
+			"",
+			errors.New("invalid JSON"),
+		},
+		{
+			testStringResponse,
+			"",
+			testStringResponse,
+			nil,
+		},
+		{
+			testStringResponse,
+			"foo.bar",
+			"",
+			errors.New("invalid JSON"),
 		},
 	}
 
