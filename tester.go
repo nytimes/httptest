@@ -98,8 +98,8 @@ func preProcessTest(test *Test, defaultHost string) error {
 
 	// Method
 	method := stringValue(test.Request.Method, "GET")
-	if method != "GET" && method != "POST" && method != "PUT" && method != "PATCH" && method != "DELETE" && method != "HEAD" && method != "OPTIONS" {
-		return fmt.Errorf("invalid method %s. only GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS are supported", method)
+	if method != "GET" && method != "POST" && method != "PUT" && method != "PATCH" && method != "DELETE" && method != "HEAD" && method != "OPTIONS" && method != "PURGE" && method != "PROPFIND" {
+		return fmt.Errorf("invalid method %s. only GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, PURGE, PROPFIND are supported", method)
 	}
 	test.Request.Method = method
 
