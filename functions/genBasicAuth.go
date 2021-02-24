@@ -9,7 +9,7 @@ import (
 	basicAuthB64("flipboard", "Dv3dSTXKhZA7")
 } */
 
-func basicAuthB64(u string, p string) (string, error) {
+func BasicAuthB64(u string, p string) (string, error) {
 	msg := u + ":" + p
 	authHeader := base64.StdEncoding.EncodeToString([]byte(msg))
 	//fmt.Println("User Name: " + u)
