@@ -34,7 +34,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 	// Parse the key, decrypting it if necessary
 	//decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
-	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(byte[key], []byte(passphrase))
+	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey([]byte(key), []byte(passphrase))
 
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; unable to parse private key: %w", err)
