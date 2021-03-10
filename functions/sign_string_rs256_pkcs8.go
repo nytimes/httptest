@@ -21,20 +21,20 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; at least 3 arguments are needed (key, passphrase, and a string to sign)")
 	}
 
-	key, passphrase, err := argsToKeyPassphrase(args)
+	key, err := argsToKeyPassphrase(args)
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; %w", err)
 	}
 
 	// Construct the string to sign
-	stringToSign := argsToStringToSign(existingHeaders, args[2:])
+	stringToSign := argsToStringToSign(existingHeaders, args[1:])
 
 	// Get the key in PEM format
 	//pemBlock, _ := pem.Decode([]byte(key))
 
 	// Parse the key, decrypting it if necessary
 	//decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
-	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey([]byte(key), []byte(passphrase))
+	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey([]byte(key))
 
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; unable to parse private key: %w", err)
@@ -83,14 +83,12 @@ func argsToKeyPassphrase(args []string) (string, string, error) {
 		return "", "", fmt.Errorf("error calling SignStringRS256PKCS8; key is empty")
 	}
 
-	passphrase := args[1]
-
-	key, err := formatKey(args[0], passphrase != "")
+	key, err := formatKey(args[0], false)
 	if err != nil {
 		return "", "", err
 	}
 
-	return key, passphrase, nil
+	return key, nil
 }
 
 // Validates the required number of arguments are provided (key, passphrase, and a string to sign).
