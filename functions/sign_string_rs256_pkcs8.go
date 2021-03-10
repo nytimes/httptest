@@ -80,12 +80,12 @@ func argsToStringToSign(existingHeaders map[string]string, args []string) string
 // Gets the key and passphrase from the args.
 func argsToKeyPassphrase(args []string) (string, error) {
 	if args[0] == "" {
-		return "", "", fmt.Errorf("error calling SignStringRS256PKCS8; key is empty")
+		return "", fmt.Errorf("error calling SignStringRS256PKCS8; key is empty")
 	}
 
 	key, err := formatKey(args[0], false)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	return key, nil
