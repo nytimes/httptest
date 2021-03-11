@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/youmark/pkcs8"
 )
 
 var errInvalidKeyFormat = errors.New("key in invalid format")
