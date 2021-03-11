@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"strings"
@@ -30,11 +31,11 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	stringToSign := argsToStringToSign(existingHeaders, args[1:])
 
 	// Get the key in PEM format
-	//pemBlock, _ := pem.Decode([]byte(key))
+	pemBlock, _ := pem.Decode([]byte(key))
 
 	// Parse the key, decrypting it if necessary
 	//decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
-	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey([]byte(key))
+	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes)
 
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; unable to parse private key: %w", err)
