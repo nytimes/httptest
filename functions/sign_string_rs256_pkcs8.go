@@ -4,13 +4,12 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"strings"
-
-	"github.com/youmark/pkcs8"
 )
 
 var errInvalidKeyFormat = errors.New("key in invalid format")
@@ -35,7 +34,8 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 	// Parse the key, decrypting it if necessary
 	//decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
-	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes)
+	//decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes)
+	decryptedKey, err := x509.ParsePKCS8PrivateKey(pemBlock.Bytes)
 
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; unable to parse private key: %w", err)
