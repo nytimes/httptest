@@ -103,9 +103,6 @@ UOxg1XGJ+PIc/XFrsFte8oF+Tp31NJjGtgYWuS8G1LQ59MlGsMRV3h4gW4Dp6LZa
 N7zz5i2xfPWkNQ3pbD+vZmYsqg==
 -----END ENCRYPTED PRIVATE KEY-----`
 
-	expectedSignature := "iimf7QvkUodn5vb9DTJ/vPjVFabVVKAvcZKRQHQXEGdfuQ9/kNEyecdKS6gC55yALND+20Om+nF/lVfi0EAP1MVcU/1cRecqmGDaZRp/Gz1D0ZH0pgNqEiCWqwd26UsAsxeszgMIXplAl0khb/tHSw5Ls4V3OuRLoZsTiTF7nMibA4qkjTTcm4Hcn/JZouRQUSjumoWuxEbS9G8MCIgi2arChovsYvRpiyRCXgW99hDRDiahvt6MRAhZZ1NhX6GCSgEptH/+36Te9jgD+s13FhRuryzZYSHtRmd2JwwxrLG5JRwm2vhDxhlRZEKRhGDVfxD61T4zHAe60ezM7D1rpA=="
-	expectedSignatureEncrypted := "IBNAcgymjFO9ub9j/npc26UoIXfPMphIeFiv1LJVkAajdc6+bKDNsnGtA0Lgx5fXEZKjhzHhqQoY/hRJls2xuGjuQyxFv2vara64wRcsB4TV5cPuSlCe1I4Bgiz1XQ7a5pmtSAjoOe9jXuI0FKSFpAfaQVuQbN2+AINWrC4V/LZpKrLS0NsQ8bfJ3PJB+h6zWuqVEHgl6ZiVvf7hQL1ZmJIBMtOkPpsAaQDYpxzFhK+S01qW6oLqNcl6OodEiZOZhtaDhYtwr41irVxmLbXJZtTt5m6mQso4nGAPf6BZe26s6DauyR++ZaZT+enXq+7dCxI4EV+KyQ6bZffpu+57Uw=="
-
 	var tests = []struct {
 		existingHeaders map[string]string
 		args            []string
@@ -114,12 +111,22 @@ N7zz5i2xfPWkNQ3pbD+vZmYsqg==
 		{
 			map[string]string{},
 			[]string{testKey, "", "hello world"},
-			expectedSignature,
+			"iimf7QvkUodn5vb9DTJ/vPjVFabVVKAvcZKRQHQXEGdfuQ9/kNEyecdKS6gC55yALND+20Om+nF/lVfi0EAP1MVcU/1cRecqmGDaZRp/Gz1D0ZH0pgNqEiCWqwd26UsAsxeszgMIXplAl0khb/tHSw5Ls4V3OuRLoZsTiTF7nMibA4qkjTTcm4Hcn/JZouRQUSjumoWuxEbS9G8MCIgi2arChovsYvRpiyRCXgW99hDRDiahvt6MRAhZZ1NhX6GCSgEptH/+36Te9jgD+s13FhRuryzZYSHtRmd2JwwxrLG5JRwm2vhDxhlRZEKRhGDVfxD61T4zHAe60ezM7D1rpA==",
 		},
 		{
 			map[string]string{},
 			[]string{testKeyEncrypted, "password", "hello world"},
-			expectedSignatureEncrypted,
+			"IBNAcgymjFO9ub9j/npc26UoIXfPMphIeFiv1LJVkAajdc6+bKDNsnGtA0Lgx5fXEZKjhzHhqQoY/hRJls2xuGjuQyxFv2vara64wRcsB4TV5cPuSlCe1I4Bgiz1XQ7a5pmtSAjoOe9jXuI0FKSFpAfaQVuQbN2+AINWrC4V/LZpKrLS0NsQ8bfJ3PJB+h6zWuqVEHgl6ZiVvf7hQL1ZmJIBMtOkPpsAaQDYpxzFhK+S01qW6oLqNcl6OodEiZOZhtaDhYtwr41irVxmLbXJZtTt5m6mQso4nGAPf6BZe26s6DauyR++ZaZT+enXq+7dCxI4EV+KyQ6bZffpu+57Uw==",
+		},
+		{
+			map[string]string{},
+			[]string{testKey, "", "hello", "world"},
+			"BIV+qMQ7cFcwGUJro/3A2ssn58eEqulNl2rJ/NHj7RfBROGkJVQQo8Oo0bHVzzAy+oJa0Atu1PSBMAo2TIXOIZ2y/lwdIyaFeKrYXJsLeOwpwkguIYasUPSoQWbucd6mHTK61JDujijVd0aU9wBe12W+7Gu/1kBOxDFxEXlH8eIs1KiOI/Wrz19aZHl045gBGB1hmEZkguMRRvvMdqayWC7zCj6vNt/tIEGQZ6R/yVoumiiEj7ZhRQX70WUkuJ4RLjoEf/XyTQ6D8APdzxMhihRHhigkoldOUyGUj00Ki9gfLoKuEPnV3dimpaslPPxF24e/YVMvk7UeCYFUJ6lTqA==",
+		},
+		{
+			map[string]string{},
+			[]string{testKeyEncrypted, "password", "hello", "world"},
+			"MurHoG8G/e5rY5fJ8lpEc6X9LGraddnj8W5c/IyskTL8TikF3tZxJbOiFm0AOT3NtgICuNWne770ea6YrrndI9hzbxod1TrkFEZGeLGk7sa+R3ZdgyYq7DGwRbAf9hA2Jm5ZIz8g2KFpOJDtEwdza2tzOKf/CrF4T37NQJPcfhj/UcFD5OUPGZ63r2Gg22QO0A/k434lKmh3eJX1b2DJbGt9SINtDc8ALAbPrEtCsdB8/MvVmAJg0i6QeQhhloGzzy+Oxqi1RNIkRII/8l0xr6I0JZscZCJrg8lPlKgtQpSEuXr9Ud3UU3Jb11wmCWuG4a8UgRgyvxJK++f01MZiYA==",
 		},
 	}
 
