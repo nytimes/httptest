@@ -57,7 +57,7 @@ mnopqr
 		{
 			map[string]string{
 				"nyt-app-type": "NYT-FunTest",
-				"nyt-app-version": "1.0.0"
+				"nyt-app-version": "1.0.0",
 			},
 			[]string{testKey, "", "$timestamp-epoch", "request_path=/", "nyt-app-type", "nyt-app-version"},
 			"$expectedsignature",
