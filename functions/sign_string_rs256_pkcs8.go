@@ -58,7 +58,7 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; could not sign header: %w", err)
 	}
-
+	fmt.Println(base64.StdEncoding.EncodeToString(signature))
 	// Return signature in base64 encoding
 	return base64.StdEncoding.EncodeToString(signature), nil
 }
