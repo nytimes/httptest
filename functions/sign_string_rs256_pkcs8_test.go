@@ -42,6 +42,36 @@ mnopqr
 	}
 }
 
+func TestSignStringRS256PKCS8(t *testing.T) {
+	testKey := `-----BEGIN PRIVATE KEY----- abcdef ghijkl mnopqr -----END PRIVATE KEY-----
+abcdef
+ghijkl
+mnopqr
+-----END PRIVATE KEY-----`	
+	
+	var tests = []struct {
+		existingHeaders map[string]string
+		args            []string
+		valid           string
+	}{
+		{
+			map[string]string{
+				"nyt-app-type": "NYT-FunTest",
+				"nyt-app-version": "1.0.0"
+			},
+			[]string{testKey, "", "$timestamp-epoch", "request_path=/", "nyt-app-type", "nyt-app-version"},
+			"$expectedsignature",
+		},
+	}
+
+	for _, tc := range tests {
+		actual := SignStringRS256PKCS8(tc.existingHeaders, tc.args)
+		if actual != tc.valid {
+			t.Errorf("SignStringRS256PKCS8(%s): expected %v, actual %v", tc.args, tc.valid, actual)
+		}
+	}
+}
+
 func TestValidateSignStringRS256PKCS8(t *testing.T) {
 	var tests = []struct {
 		args  []string
