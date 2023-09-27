@@ -31,7 +31,7 @@ type TestResult struct {
 	Errors  []error
 }
 
-// RunTest runs single test
+// RunTest runs a single test
 func RunTest(test *Test, defaultHost string) *TestResult {
 	result := &TestResult{}
 
