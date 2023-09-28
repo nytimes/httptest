@@ -27,6 +27,7 @@ type Config struct {
 	Host                 string
 	PrintFailedTestsOnly bool
 	TestDirectory        string
+	Verbosity            int
 }
 
 // FromEnv returns config read from environment variables
@@ -40,6 +41,14 @@ func FromEnv() (*Config, error) {
 		return nil, fmt.Errorf("invalid concurrency value: %d", concurrency)
 	}
 
+	verbosity, err := strconv.Atoi(getEnv("TEST_VERBOSITY", "0"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid verbosity value: %s", err)
+	}
+	if verbosity < 0 {
+		return nil, fmt.Errorf("invalid verbosity value: %d", verbosity)
+	}
+
 	printFailedOnly := false
 	if getEnv("TEST_PRINT_FAILED_ONLY", "false") == "true" {
 		printFailedOnly = true
@@ -51,6 +60,7 @@ func FromEnv() (*Config, error) {
 		DNSOverride:          getEnv("TEST_DNS_OVERRIDE", ""),
 		PrintFailedTestsOnly: printFailedOnly,
 		TestDirectory:        getEnv("TEST_DIRECTORY", "tests"),
+		Verbosity:            verbosity,
 	}, nil
 }
 

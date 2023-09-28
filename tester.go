@@ -21,6 +21,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 // TestResult stores results of a single test
@@ -29,7 +31,7 @@ type TestResult struct {
 	Errors  []error
 }
 
-// RunTest runs single test
+// RunTest runs a single test
 func RunTest(test *Test, defaultHost string) *TestResult {
 	result := &TestResult{}
 
@@ -68,11 +70,21 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		SkipCertVerification: test.SkipCertVerification,
 	}
 
+	zap.L().Info("sending request",
+		zap.Any("request", reqConfig),
+	)
+
 	resp, respBody, err := SendHTTPRequest(reqConfig)
 	if err != nil {
 		result.Errors = append(result.Errors, err)
 		return result
 	}
+
+	zap.L().Info("got response",
+		zap.ByteString("body", respBody),
+		zap.String("status", resp.Status),
+		zap.Any("headers", resp.Header),
+	)
 
 	// Append response validation errors
 	result.Errors = append(result.Errors, validateResponse(test, resp, respBody)...)

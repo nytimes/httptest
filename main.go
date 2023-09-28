@@ -8,7 +8,7 @@
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
@@ -18,6 +18,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -30,6 +33,45 @@ var (
 	// BuildTime is the build time
 	BuildTime string
 )
+
+func buildLogger(logLevel int) *zap.Logger {
+	zapLevel := zap.FatalLevel
+	switch logLevel {
+	case 0:
+		zapLevel = zap.FatalLevel
+	case 1:
+		zapLevel = zap.InfoLevel
+	default:
+		zapLevel = zap.DebugLevel
+	}
+
+	config := zap.Config{
+		Level:       zap.NewAtomicLevelAt(zapLevel),
+		Development: false,
+		Encoding:    "json",
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "ts",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      zapcore.OmitKey,
+			FunctionKey:    zapcore.OmitKey,
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseLevelEncoder,
+			EncodeTime:     zapcore.EpochTimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
+		OutputPaths: []string{
+			"stderr",
+		},
+		ErrorOutputPaths: []string{
+			"stderr",
+		},
+	}
+	return zap.Must(config.Build())
+}
 
 func main() {
 	// Print version info
@@ -44,6 +86,10 @@ func main() {
 	if err := ApplyConfig(config); err != nil {
 		log.Fatalf("error: failed to apply config: %s", err)
 	}
+
+	logger := buildLogger(config.Verbosity)
+	defer logger.Sync()
+	zap.ReplaceGlobals(logger)
 
 	// Parse and run tests
 	tests, err := ParseAllTestsInDirectory(config.TestDirectory)
