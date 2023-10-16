@@ -100,6 +100,8 @@ environment variables:
 - `TEST_PRINT_FAILED_ONLY`: Only print failed tests. Valid values: `false` or
   `true`. Default: `false`.
 
+- `TEST_VERBOSITY`: Increase logging output for tests. Default: `0`.
+
 ### Environment variable substitution
 
 This program supports variable substitution from environment variables in YML
