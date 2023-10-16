@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "nytimes/delivery-engineering"
+      - "nytimes/security-architecture"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
