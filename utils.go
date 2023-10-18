@@ -26,8 +26,6 @@ func AppendHostsFile(content string) error {
 		return err
 	}
 
-	fmt.Printf(fmt.Sprintf("\n%s\n", content))
-
 	if _, err := f.Write([]byte(fmt.Sprintf("\n%s\n", content))); err != nil {
 		return err
 	}
