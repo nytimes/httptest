@@ -166,14 +166,14 @@ func validateConditions(test *Test) (bool, error) {
 func validateResponse(test *Test, response *http.Response, body []byte) []error {
 	errors := []error{}
 
-	errors = append(errors, validateResponseStatus(test, response)...)
-	errors = append(errors, validateResponseHeaders(test, response)...)
-	errors = append(errors, validateResponseBody(test, response, body)...)
+	errors = append(errors, validateResponseStatus(test, response, test.ShouldFail)...)
+	errors = append(errors, validateResponseHeaders(test, response, test.ShouldFail)...)
+	errors = append(errors, validateResponseBody(test, response, body, test.ShouldFail)...)
 
 	return errors
 }
 
-func validateResponseStatus(test *Test, response *http.Response) []error {
+func validateResponseStatus(test *Test, response *http.Response, expectFailure bool) []error {
 	errors := []error{}
 	expected := test.Response
 
@@ -185,21 +185,24 @@ func validateResponseStatus(test *Test, response *http.Response) []error {
 	}
 
 	if !matched && len(expected.StatusCodes) > 0 {
+		if expectFailure {
+			return errors
+		}
 		errors = append(errors, fmt.Errorf("unexpected status code - expected %v, got %d", expected.StatusCodes, response.StatusCode))
 	}
 
 	return errors
 }
 
-func validateResponseHeaders(test *Test, response *http.Response) []error {
+func validateResponseHeaders(test *Test, response *http.Response, expectFailure bool) []error {
 	errors := []error{}
 	expectedResponse := test.Response
 
 	// Patterns (matching assertions)
-	errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.Patterns, true)...)
+	errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.Patterns, true, expectFailure)...)
 
 	// NotMatching assertions
-	errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.NotMatching, false)...)
+	errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.NotMatching, false, expectFailure)...)
 
 	// NotPresent assertions
 	npAssertions := expectedResponse.Headers.NotPresent
@@ -209,24 +212,32 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		}
 	}
 
+	// NotPresentSubfield assertions come in the form of key/value pairs where the key is the header name and the value is
+	// the pattern that we want to confirm does not exist within that header. Here we test that in two steps:
+	//		1. Check if the header, itself exists. If it does not the test automatically passes.
+	//		2. If the header does exist we pass the full list of NotPresentSubfield key/value pairs to the validate function
+	//			which errors if the pattern is matched in the header.
 	npSubfieldAssertions := expectedResponse.Headers.NotPresentSubfields
 	for header := range npSubfieldAssertions {
 		respHeaderValue := response.Header.Get(header)
 		if len(respHeaderValue) > 0 {
-			errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.NotPresentSubfields, false)...)
+			errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.NotPresentSubfields, false, expectFailure)...)
 		}
 	}
 
 	return errors
 }
 
-func validateResponseHeaderPatterns(response *http.Response, patterns map[string]string, expectedToMatch bool) []error {
+func validateResponseHeaderPatterns(response *http.Response, patterns map[string]string, expectedToMatch bool, expectFailure bool) []error {
 	errors := []error{}
 
 	// Patterns
 	for header, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
 		if err != nil {
+			if expectFailure {
+				continue
+			}
 			errors = append(errors, fmt.Errorf("%s", err.Error()))
 			continue
 		}
@@ -235,8 +246,15 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 		values, ok := response.Header[http.CanonicalHeaderKey(header)]
 		if !ok {
 			if expectedToMatch {
+				if expectFailure {
+					continue
+				}
 				errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
+
 			} else {
+				if expectFailure {
+					continue
+				}
 				errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to be present", header))
 			}
 			continue
@@ -252,10 +270,16 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 		}
 
 		if expectedToMatch && !matched {
+			if expectFailure {
+				continue
+			}
 			errors = append(errors, fmt.Errorf("response header \"%s\" has value(s) \"%s\", none of which match pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
 
 		if !expectedToMatch && matched {
+			if expectFailure {
+				continue
+			}
 			errors = append(errors, fmt.Errorf("response header \"%s\" has value(s) \"%s\", at least one of which matches pattern \"%s\"", header, strings.Join(values[:], "\", \""), pattern))
 		}
 	}
@@ -263,18 +287,24 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 	return errors
 }
 
-func validateResponseBody(test *Test, response *http.Response, body []byte) []error {
+func validateResponseBody(test *Test, response *http.Response, body []byte, expectFailure bool) []error {
 	errors := []error{}
 
 	patterns := test.Response.Body.Patterns
 	for _, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
 		if err != nil {
+			if expectFailure {
+				continue
+			}
 			errors = append(errors, fmt.Errorf("%s", err.Error()))
 			continue
 		}
 
 		if !re.Match(body) {
+			if expectFailure {
+				continue
+			}
 			errors = append(errors, fmt.Errorf("response body does not match pattern \"%s\"", pattern))
 		}
 	}

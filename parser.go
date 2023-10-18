@@ -59,6 +59,7 @@ type Test struct {
 			Patterns []string `yaml:"patterns"`
 		}
 	} `yaml:"response"`
+	ShouldFail bool `yaml:"shouldFail"`
 }
 
 type DynamicHeader struct {

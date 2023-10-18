@@ -7,6 +7,14 @@ tests:
     response:
       statusCodes: [200]
 
+  - description: 'HTTP GET - wrong status code, assert test failure'
+    request:
+      scheme: 'http'
+      path: '/get'
+    response:
+      statusCodes: [400]
+    shouldFail: true
+
   - description: 'HTTPS GET'
     request:
       path: '/get'
@@ -22,6 +30,40 @@ tests:
       body:
         patterns:
           - 'https://httpbin.org/get'
+  
+  - description: 'HTTPS GET - notPresent header is present, assert test failure'
+    request:
+      path: '/get'
+    response:
+      statusCodes: [200]
+      headers:
+        patterns:
+          access-control-allow-origin: '.+'
+        notPresent:
+          - 'Host'
+        notMatching:
+          access-control-allow-origin: 'example.com'
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+    shouldFail: true
+  
+  - description: 'HTTPS GET - notMatching header is matching, assert test failure'
+    request:
+      path: '/get'
+    response:
+      statusCodes: [200]
+      headers:
+        patterns:
+          access-control-allow-origin: '.+'
+        notPresent:
+          - 'not-present-header'
+        notMatching:
+          content-type: application/json
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+    shouldFail: true
 
   - description: 'HTTPS GET - not present subfield'
     request:
@@ -41,6 +83,24 @@ tests:
         patterns:
           - 'https://httpbin.org/get'
 
+  - description: 'HTTPS GET - not present subfield is present, assert test failure'
+    request:
+      path: '/get'
+    response:
+      statusCodes: [200]
+      headers:
+        patterns:
+          access-control-allow-origin: '.+'
+        notPresent:
+          - 'not-present-header'
+        notMatching:
+          access-control-allow-origin: 'example.com'
+        notPresentSubfields:
+          Content-Type: ^application/json$
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+    shouldFail: true
   
   - description: 'HTTPS GET - not present multiple subfields'
     request:
@@ -50,13 +110,30 @@ tests:
         TEST_ENV: dev
     response:
       headers:
-        notPresentSubfields: 
-          Server: (.*(nginx|42)).*
+        notMatching: 
+          Server: ^(.*(nginx|42)).*
       statusCodes:
         - 200
       body:
         patterns:
           - 'https://httpbin.org/get'
+
+  - description: 'HTTPS GET - not present multiple subfields are present, assert test failure'
+    request:
+      path: /get
+    conditions:
+      env:
+        TEST_ENV: dev
+    response:
+      headers:
+        notMatching: 
+          Server: ^(.*(gunicorn|19.9.0)).*
+      statusCodes:
+        - 200
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+    shouldFail: true
 
   - description: 'HTTP POST'
     request:
