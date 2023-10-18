@@ -23,7 +23,7 @@ tests:
         patterns:
           - 'https://httpbin.org/get'
 
-  - description: 'HTTPS GET'
+  - description: 'HTTPS GET - not present subfield'
     request:
       path: '/get'
     response:
@@ -36,7 +36,24 @@ tests:
         notMatching:
           access-control-allow-origin: 'example.com'
         notPresentSubfields:
-          Content-Type: 'notreal/fake'
+          Content-Type: ^notreal/fake$
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+
+  
+  - description: 'HTTPS GET - no present multiple subfields'
+    request:
+      path: /get
+    conditions:
+      env:
+        TEST_ENV: dev
+    response:
+      headers:
+        notPresentSubfields: 
+          Server: ^(.*(nginx|42)).*$
+      statusCodes:
+        - 200
       body:
         patterns:
           - 'https://httpbin.org/get'
