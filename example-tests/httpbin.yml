@@ -51,7 +51,7 @@ tests:
     response:
       headers:
         notPresentSubfields: 
-          Server: ^(.*(nginx|42)).*$
+          Server: (.*(nginx|42)).*
       statusCodes:
         - 200
       body:
