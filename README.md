@@ -319,7 +319,7 @@ tests:
     response:
       statusCodes: [200]
 
-  - description: 'sign up page - test fails when a header that should not be present is present'                # Example test that asserts shouldFail
+  - description: 'sign up page - assert test fails when a header that should not be present is present'                # Example test that asserts shouldFail
     request:
       path: '/signup'
     response:
