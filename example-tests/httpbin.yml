@@ -42,7 +42,7 @@ tests:
           - 'https://httpbin.org/get'
 
   
-  - description: 'HTTPS GET - no present multiple subfields'
+  - description: 'HTTPS GET - not present multiple subfields'
     request:
       path: /get
     conditions:
