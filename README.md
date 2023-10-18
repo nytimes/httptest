@@ -306,6 +306,8 @@ tests:
           - 'x-frame-options'
         notMatching:
           set-cookie: ^.*abc.*$                # Specify headers expected to exist but NOT match the given regex
+        notPresentSubfield:
+          test-header-with-subfields: ^unexpected-subfield$
       body:                                    # Response body
         patterns:                              # Response body has to match all patterns in this list in order to pass test
           - 'charset="utf-8"'                  # Regular expressions
@@ -316,6 +318,16 @@ tests:
       path: '/signup'
     response:
       statusCodes: [200]
+
+  - description: 'sign up page - test fails when a header that should not be present is present'                # Example test that asserts shouldFail
+    request:
+      path: '/signup'
+    response:
+      statusCodes: [200]
+      headers:
+        notPresent:
+          - not-present-header-is-present
+    shouldFail: true
 ```
 
 ## Development
