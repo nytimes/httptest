@@ -50,9 +50,10 @@ type Test struct {
 	Response struct {
 		StatusCodes []int `yaml:"statusCodes"`
 		Headers     struct {
-			Patterns    map[string]string `yaml:"patterns"`
-			NotPresent  []string          `yaml:"notPresent"`
-			NotMatching map[string]string `yaml:"notMatching"`
+			Patterns            map[string]string `yaml:"patterns"`
+			NotPresent          []string          `yaml:"notPresent"`
+			NotMatching         map[string]string `yaml:"notMatching"`
+			NotPresentSubfields map[string]string `yaml:"notPresentSubfields"`
 		} `yaml:"headers"`
 		Body struct {
 			Patterns []string `yaml:"patterns"`

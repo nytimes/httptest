@@ -209,6 +209,14 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		}
 	}
 
+	npSubfieldAssertions := expectedResponse.Headers.NotPresentSubfields
+	for header := range npSubfieldAssertions {
+		respHeaderValue := response.Header.Get(header)
+		if len(respHeaderValue) > 0 {
+			errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.NotPresentSubfields, false)...)
+		}
+	}
+
 	return errors
 }
 

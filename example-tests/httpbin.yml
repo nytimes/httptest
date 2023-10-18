@@ -23,6 +23,24 @@ tests:
         patterns:
           - 'https://httpbin.org/get'
 
+  - description: 'HTTPS GET'
+    request:
+      path: '/get'
+    response:
+      statusCodes: [200]
+      headers:
+        patterns:
+          access-control-allow-origin: '.+'
+        notPresent:
+          - 'not-present-header'
+        notMatching:
+          access-control-allow-origin: 'example.com'
+        notPresentSubfields:
+          Content-Type: 'notreal/fake'
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+
   - description: 'HTTP POST'
     request:
       method: 'POST'
