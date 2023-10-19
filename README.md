@@ -316,6 +316,31 @@ tests:
       path: '/signup'
     response:
       statusCodes: [200]
+
+  - description: 'HTTPS GET - test if present not matching'
+    request:
+      path: '/get'
+    conditions:
+      env:
+        TEST_ENV: dev
+    response:
+      statusCodes: [200]
+      headers:
+        ifPresentNotMatching:
+          Content-Type: ^notreal/fake$ # If Content-Type does not match this pattern the test passes, else it fails
+
+  - description: 'HTTPS GET - test if present not matching multiple possible matches'
+    request:
+      path: /get
+    conditions:
+      env:
+        TEST_ENV: dev
+    response:
+      headers:
+        notMatching: 
+          Server: ^(.*(nginx|42)).* # If Server does not match either portio of the pattern (nginx or 42) the test passes, else it fails
+      statusCodes:
+        - 200
 ```
 
 ## Development
