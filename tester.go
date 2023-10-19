@@ -209,6 +209,19 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 		}
 	}
 
+	// IfPresentNotMatching assertions come in the form of key/value pairs where the key is the header name and the value is
+	// the pattern that we want to confirm does not exist within that header. Here we test that in two steps:
+	//		1. Check if the header, itself exists. If it does not the test automatically passes.
+	//		2. If the header does exist we pass the full list of IfPresentNotMatching key/value pairs to the validate function
+	//			which errors if the pattern is matched in the header.
+	ifPresentNotMatchingAssertions := expectedResponse.Headers.IfPresentNotMatching
+	for header := range ifPresentNotMatchingAssertions {
+		respHeaderValue := response.Header.Get(header)
+		if len(respHeaderValue) > 0 {
+			errors = append(errors, validateResponseHeaderPatterns(response, expectedResponse.Headers.IfPresentNotMatching, false)...)
+		}
+	}
+
 	return errors
 }
 
@@ -219,7 +232,7 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 	for header, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
 		if err != nil {
-			errors = append(errors, fmt.Errorf("%s", err.Error()))
+			errors = append(errors, fmt.Errorf("invalid test pattern `%s`: %s", pattern, err.Error()))
 			continue
 		}
 
