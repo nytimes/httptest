@@ -331,7 +331,7 @@ tests:
 
   - description: 'HTTPS GET - test if present not matching multiple possible matches'
     request:
-      path: /get
+      path: '/get'
     conditions:
       env:
         TEST_ENV: dev
