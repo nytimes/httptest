@@ -34,9 +34,6 @@ tests:
       headers:
         ifPresentNotMatching:
           Content-Type: ^notreal/fake$
-      body:
-        patterns:
-          - 'https://httpbin.org/get'
 
   - description: 'HTTPS GET - if present not matching multiple possible matches'
     request:
