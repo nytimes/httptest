@@ -216,7 +216,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 	ipnmHeaders := expectedResponse.Headers.IfPresentNotMatching
 	for header := range ipnmHeaders {
 		if len(response.Header.Get(header)) > 0 {
-			errors = append(errors, validateResponseHeaderPatterns(response, ipnmHeaders, false, expectFailure)...)
+			errors = append(errors, validateResponseHeaderPatterns(response, ipnmHeaders, false)...)
 		}
 	}
 
