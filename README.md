@@ -327,7 +327,7 @@ tests:
       statusCodes: [200]
       headers:
         ifPresentNotMatching:
-          Content-Type: ^notreal/fake$ # If Content-Type does not match this pattern the test passes, else it fails
+          Content-Type: ^notreal/fake$         # If Content-Type does not exist or does not match this pattern the test passes, else it fails
 
   - description: 'HTTPS GET - test if present not matching multiple possible matches'
     request:
