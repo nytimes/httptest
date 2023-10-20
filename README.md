@@ -338,7 +338,7 @@ tests:
     response:
       headers:
         notMatching: 
-          Server: ^(.*(nginx|42)).* # If Server does not match either portion of the pattern (nginx or 42) the test passes, else it fails
+          Server: ^(.*(nginx|42)).*            # If Server does not match either portion of the pattern (nginx or 42) the test passes, else it fails
       statusCodes:
         - 200
 ```
