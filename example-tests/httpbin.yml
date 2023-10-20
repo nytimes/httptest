@@ -23,6 +23,34 @@ tests:
         patterns:
           - 'https://httpbin.org/get'
 
+  - description: 'HTTPS GET - if present not matching'
+    request:
+      path: '/get'
+    conditions:
+      env:
+        TEST_ENV: dev
+    response:
+      statusCodes: [200]
+      headers:
+        ifPresentNotMatching:
+          Content-Type: ^notreal/fake$
+
+  - description: 'HTTPS GET - if present not matching multiple possible matches'
+    request:
+      path: '/get'
+    conditions:
+      env:
+        TEST_ENV: dev
+    response:
+      headers:
+        notMatching: 
+          Server: ^(.*(nginx|42)).*
+      statusCodes:
+        - 200
+      body:
+        patterns:
+          - 'https://httpbin.org/get'
+
   - description: 'HTTP POST'
     request:
       method: 'POST'
