@@ -32,7 +32,6 @@ type HTTPRequestConfig struct {
 	BasicAuthUsername    string
 	BasicAuthPassword    string
 	Body                 io.Reader
-	Attempts             int
 	TimeoutSeconds       time.Duration
 	SkipCertVerification bool
 }
@@ -50,10 +49,6 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 
 	if len(config.URL) <= 0 {
 		return nil, nil, fmt.Errorf("URL is required")
-	}
-
-	if config.Attempts == 0 {
-		config.Attempts = 1
 	}
 
 	if config.TimeoutSeconds == 0 {
@@ -109,13 +104,8 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	}
 
 	// Start sending request
-	var resp *http.Response
-	for a := config.Attempts; a > 0; a-- {
-		resp, err = client.Do(req)
-		if err == nil {
-			break
-		}
-	}
+	resp, err := client.Do(req)
+
 	if err != nil {
 		return nil, nil, err
 	}
