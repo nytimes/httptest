@@ -16,11 +16,14 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/hashicorp/go-retryablehttp"
 )
 
 // HTTPRequestConfig type
@@ -34,6 +37,8 @@ type HTTPRequestConfig struct {
 	Body                 io.Reader
 	TimeoutSeconds       time.Duration
 	SkipCertVerification bool
+	MaxRetries           int
+	RetryCallback        func(ctx context.Context, resp *http.Response, err error) (bool, error)
 }
 
 // SendHTTPRequest sends an HTTP request and returns response body and status
@@ -44,7 +49,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	}
 
 	if len(config.Method) <= 0 {
-		return nil, nil, fmt.Errorf("Method is required")
+		return nil, nil, fmt.Errorf("method is required")
 	}
 
 	if len(config.URL) <= 0 {
@@ -56,7 +61,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	}
 
 	// Create request
-	req, err := http.NewRequest(
+	req, err := retryablehttp.NewRequest(
 		config.Method,
 		config.URL,
 		config.Body,
@@ -91,16 +96,25 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		req.Header.Add(k, v)
 	}
 
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
+	client := retryablehttp.Client{
+		HTTPClient: &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
+			},
+			Timeout: time.Duration(config.TimeoutSeconds * time.Second),
+		},
 	}
 
-	client := http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-		Transport: transport,
-		Timeout:   time.Duration(config.TimeoutSeconds * time.Second),
+	// Enable retries
+	if config.MaxRetries > 0 {
+		client.RetryMax = config.MaxRetries
+		client.CheckRetry = config.RetryCallback
+	} else {
+		// Don't retry requests
+		client.CheckRetry = func(ctx context.Context, resp *http.Response, inErr error) (bool, error) { return false, nil }
 	}
 
 	// Start sending request

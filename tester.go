@@ -15,6 +15,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -32,7 +33,7 @@ type TestResult struct {
 }
 
 // RunTest runs a single test
-func RunTest(test *Test, defaultHost string) *TestResult {
+func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 	result := &TestResult{}
 
 	// Validate test and assign default values
@@ -60,6 +61,22 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		body = strings.NewReader(test.Request.Body)
 	}
 
+	retryCallback := func(ctx context.Context, resp *http.Response, inErr error) (bool, error) {
+		if inErr != nil {
+			// retry is there is an error with the request
+			return true, nil
+		}
+
+		errs := validateResponseStatus(test, resp)
+		if len(errs) >= 1 {
+			// retry if there is an error
+			return true, nil
+		}
+
+		// stop retrying
+		return false, nil
+	}
+
 	reqConfig := &HTTPRequestConfig{
 		Method:               test.Request.Method,
 		URL:                  url,
@@ -67,6 +84,8 @@ func RunTest(test *Test, defaultHost string) *TestResult {
 		Body:                 body,
 		TimeoutSeconds:       60,
 		SkipCertVerification: test.SkipCertVerification,
+		RetryCallback:        retryCallback,
+		MaxRetries:           maxRetries,
 	}
 
 	zap.L().Info("sending request",

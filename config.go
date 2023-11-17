@@ -61,12 +61,12 @@ func FromEnv() (*Config, error) {
 		enableRetries = false
 	}
 
-	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "3"))
+	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "2"))
 	if err != nil {
 		return nil, fmt.Errorf("invalid default retry count value: %s", err)
 	}
 	if retryCount < 0 {
-		return nil, fmt.Errorf("invalid default retry count value: %d", verbosity)
+		return nil, fmt.Errorf("invalid default retry count value: %d", retryCount)
 	}
 
 	return &Config{
