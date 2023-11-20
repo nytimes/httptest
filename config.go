@@ -28,6 +28,8 @@ type Config struct {
 	PrintFailedTestsOnly bool
 	TestDirectory        string
 	Verbosity            int
+	EnableRetries        bool
+	RetryCount           int
 }
 
 // FromEnv returns config read from environment variables
@@ -54,6 +56,19 @@ func FromEnv() (*Config, error) {
 		printFailedOnly = true
 	}
 
+	enableRetries := true
+	if getEnv("ENABLE_RETRIES", "true") == "false" {
+		enableRetries = false
+	}
+
+	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "2"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid default retry count value: %s", err)
+	}
+	if retryCount < 0 {
+		return nil, fmt.Errorf("invalid default retry count value: %d", retryCount)
+	}
+
 	return &Config{
 		Concurrency:          concurrency,
 		Host:                 getEnv("TEST_HOST", ""),
@@ -61,6 +76,8 @@ func FromEnv() (*Config, error) {
 		PrintFailedTestsOnly: printFailedOnly,
 		TestDirectory:        getEnv("TEST_DIRECTORY", "tests"),
 		Verbosity:            verbosity,
+		EnableRetries:        enableRetries,
+		RetryCount:           retryCount,
 	}, nil
 }
 

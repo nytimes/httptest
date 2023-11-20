@@ -33,7 +33,12 @@ func RunTests(tests []*Test, config *Config) bool {
 			// Release a slot when done
 			defer func() { <-sem }()
 
-			result := RunTest(t, config.Host)
+			maxRetries := 0
+			if config.EnableRetries {
+				maxRetries = config.RetryCount
+			}
+
+			result := RunTest(t, config.Host, maxRetries)
 
 			// Acquire lock before accessing shared variables and writing output.
 			// Code in critical section should not perform network I/O.
