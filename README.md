@@ -103,7 +103,7 @@ environment variables:
 - `TEST_VERBOSITY`: Increase logging output for tests. Default: `0`.
 
 - `ENABLE_RETRIES`: Enables retrying requests if a test does not succeed.
-   Defaults: `true`.
+   Defaults: `false`.
 
 - `DEFAULT_RETRY_COUNT`: Specify the number of times to retry a test request if
    the initial request does not succeed. Only applied if `ENABLE_RETRIES` is set
