@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -56,9 +56,9 @@ func FromEnv() (*Config, error) {
 		printFailedOnly = true
 	}
 
-	enableRetries := true
-	if getEnv("ENABLE_RETRIES", "true") == "false" {
-		enableRetries = false
+	enableRetries := false
+	if getEnv("ENABLE_RETRIES", "false") == "true" {
+		enableRetries = true
 	}
 
 	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "2"))

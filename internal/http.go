@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package internal
 
 import (
 	"bytes"
@@ -112,6 +112,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	if config.MaxRetries > 0 {
 		client.RetryMax = config.MaxRetries
 		client.CheckRetry = config.RetryCallback
+		client.Backoff = retryablehttp.DefaultBackoff
 	} else {
 		// Don't retry requests
 		client.CheckRetry = func(ctx context.Context, resp *http.Response, inErr error) (bool, error) { return false, nil }

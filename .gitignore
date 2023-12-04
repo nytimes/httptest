@@ -14,3 +14,5 @@ httptest
 
 # macOS
 .DS_Store
+
+*.vscode/

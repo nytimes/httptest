@@ -21,6 +21,8 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	ht "github.com/nytimes/httptest/internal"
 )
 
 var (
@@ -78,12 +80,12 @@ func main() {
 	fmt.Printf("httptest: %s %s %s\n", BuildCommit, BuildBranch, BuildTime)
 
 	// Get and apply config
-	config, err := FromEnv()
+	config, err := ht.FromEnv()
 	if err != nil {
 		log.Fatalf("error: failed to parse config: %s", err)
 	}
 
-	if err := ApplyConfig(config); err != nil {
+	if err := ht.ApplyConfig(config); err != nil {
 		log.Fatalf("error: failed to apply config: %s", err)
 	}
 
@@ -92,12 +94,12 @@ func main() {
 	zap.ReplaceGlobals(logger)
 
 	// Parse and run tests
-	tests, err := ParseAllTestsInDirectory(config.TestDirectory)
+	tests, err := ht.ParseAllTestsInDirectory(config.TestDirectory)
 	if err != nil {
 		log.Fatalf("error: failed to parse tests: %s", err)
 	}
 
-	if !RunTests(tests, config) {
+	if !ht.RunTests(tests, config) {
 		os.Exit(1)
 	}
 
