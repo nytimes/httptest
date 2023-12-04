@@ -56,9 +56,9 @@ func FromEnv() (*Config, error) {
 		printFailedOnly = true
 	}
 
-	enableRetries := true
-	if getEnv("ENABLE_RETRIES", "true") == "false" {
-		enableRetries = false
+	enableRetries := false
+	if getEnv("ENABLE_RETRIES", "false") == "true" {
+		enableRetries = true
 	}
 
 	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "2"))
