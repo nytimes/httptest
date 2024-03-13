@@ -1,6 +1,6 @@
 # httptest
 
-[![Build Status](https://cloud.drone.io/api/badges/nytimes/httptest/status.svg)](https://cloud.drone.io/nytimes/httptest)
+[![Build Status](https://drone.dv.nyt.net/api/badges/nytimes/httptest/status.svg)](https://drone.dv.nyt.net/nytimes/httptest)
 
 A simple concurrent HTTP testing tool
 
@@ -21,7 +21,8 @@ tests:
 
 ### Run tests locally
 
-This program is distributed as a Docker image. To run a container locally (under a folder contains tests related yml file): 
+This program is distributed as a Docker image. To run a container locally (under a folder contains tests related yml file):
+
 ```bash
 docker run --rm \
     -v $(pwd)/httpbin.yml:/tests/tests.yml \
@@ -30,7 +31,8 @@ docker run --rm \
 ```
 
 You should see an output similar to this:
-```
+
+```shell
 passed:  tests.yml | root | /
 
 1 passed
@@ -40,7 +42,7 @@ passed:  tests.yml | root | /
 
 Tip: If your test cases have conditions on environment variables (see `conditions` in [full example](#full-test-example)), remember to include `-e "<ENV_VAR>=<value>"`. e.g.
 
-```
+```shell
 docker run --rm \
     -v $(pwd)/route-abc-tests.yml:/tests/tests.yml \
     -e "TEST_HOST=www.stg.example.com" \
@@ -152,32 +154,39 @@ type resolveHeader func(existingHeaders map[string]string, args []string) (strin
 These are the functions that are currently supported:
 
 #### now
+
 Returns the number of seconds since the Unix epoch
 
 Args: none
 
 #### signStringRS256PKCS8
+
 Constructs a string from args (delimited by newlines), signs it with the (possibly passphrase-encrypted) PKCS #8 private key, and returns the signature in base64
 
 Args:
+
 - key
 - passphrase (can be empty string if key is not encrypted)
 - string(s)... (any amount of strings, from previously set headers or literal values)
 
 #### postFormURLEncoded
+
 Sends an HTTP POST request to the given URL (with Content-Type `application/x-www-form-urlencoded`), returns either the whole response body or a specific JSON element, and treats the remaining arguments as data
 
 Args:
+
 - url (the URL to send the request to)
 - element (see section on "JSON Query Syntax" below)
 - string(s)... (any amount of strings, from previously set headers or literal values, which will be concatenated and delimited with '&' for the request body)
 
 ##### JSON Query Syntax
+
 The element to return from the JSON response body is specified by a dot-delimited string representing the path to the element. Each part of this string is a single step in that path, and array access is handled by providing a zero-based index. If the element selected has a primitive value, that value is returned. If the element selected is a JSON object or array, that object/array is returned in compact form (insignificant whitespace removed). To return the entire JSON response body, use an empty string.
 
-**Examples:**  
-**Primitive data**  
+**Examples:**
+**Primitive data**
 Response body:
+
 ```json
 {
     "nested": {
@@ -187,11 +196,13 @@ Response body:
     }
 }
 ```
-Query: 'nested.object.data'  
+
+Query: 'nested.object.data'
 Result: 123
 
-**Object**  
+**Object**
 Response body:
+
 ```json
 {
     "nested": {
@@ -201,11 +212,13 @@ Response body:
     }
 }
 ```
-Query: 'nested.object'  
+
+Query: 'nested.object'
 Result: {"data":123}
 
-**Array**  
+**Array**
 Response body:
+
 ```json
 {
     "nested": {
@@ -217,11 +230,13 @@ Response body:
     }
 }
 ```
-Query: 'nested.array'  
+
+Query: 'nested.array'
 Result: ["abc","def","ghi"]
 
-**Array element**  
+**Array element**
 Response body:
+
 ```json
 {
     "nested": {
@@ -233,21 +248,26 @@ Response body:
     }
 }
 ```
-Query: 'nested.array.1'  
+
+Query: 'nested.array.1'
 Result: def
 
-**Whole response**  
+**Whole response**
 Response body:
-```
+
+```plaintext
 Just a normal, non-JSON response
 ```
-Query: ''  
+
+Query: ''
 Result: Just a normal, non-JSON response
 
 #### concat
+
 Concatenates the arguments into a single string
 
 Args:
+
 - string(s)... (any amount of strings, from previously set headers or literal values, which will be concatenated)
 
 ### Full test example
@@ -344,7 +364,7 @@ tests:
         TEST_ENV: dev
     response:
       headers:
-        notMatching: 
+        notMatching:
           Server: ^(.*(nginx|42)).*            # If Server does not match either portion of the pattern (nginx or 42) the test passes, else it fails
       statusCodes:
         - 200
@@ -355,13 +375,16 @@ tests:
 ### Run locally
 
 Download package
-```
+
+```shell
 go get -d -u github.com/nytimes/httptest
 ```
 
 Build and run
+
 ```bash
 # In repo root directory
 make run
 ```
+
 This will run the tests defined in `example-tests` directory.
