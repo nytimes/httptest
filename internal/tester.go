@@ -28,6 +28,7 @@ import (
 
 // TestResult stores results of a single test
 type TestResult struct {
+	Retries int
 	Skipped bool
 	Errors  []error
 }
@@ -92,20 +93,29 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		zap.Any("request", reqConfig),
 	)
 
-	resp, respBody, err := SendHTTPRequest(reqConfig)
-	if err != nil {
-		result.Errors = append(result.Errors, err)
-		return result
+	for i := 0; i <= maxRetries; i++ {
+		result.Errors = []error{}
+		result.Retries = i
+
+		resp, respBody, err := SendHTTPRequest(reqConfig)
+		if err != nil {
+			result.Errors = append(result.Errors, err)
+			continue
+		}
+
+		zap.L().Info("got response",
+			zap.ByteString("body", respBody),
+			zap.String("status", resp.Status),
+			zap.Any("headers", resp.Header),
+		)
+
+		// Append response validation errors
+		result.Errors = append(result.Errors, validateResponse(test, resp, respBody)...)
+
+		if len(result.Errors) == 0 {
+			return result
+		}
 	}
-
-	zap.L().Info("got response",
-		zap.ByteString("body", respBody),
-		zap.String("status", resp.Status),
-		zap.Any("headers", resp.Header),
-	)
-
-	// Append response validation errors
-	result.Errors = append(result.Errors, validateResponse(test, resp, respBody)...)
 
 	return result
 }
