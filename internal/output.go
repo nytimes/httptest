@@ -29,7 +29,13 @@ func PrintTestResult(test *Test, result *TestResult) {
 	if result.Skipped {
 		color.HiBlue("SKIPPED")
 	} else if len(result.Errors) < 1 {
-		color.HiGreen("PASSED")
+		var output string
+		if result.Retries > 0 {
+			output = fmt.Sprintf("PASSED (RETRIES: %d)", result.Retries)
+		} else {
+			output = "PASSED"
+		}
+		color.HiGreen(output)
 	} else {
 		color.HiRed("FAILED")
 	}
