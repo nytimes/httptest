@@ -65,11 +65,9 @@ pipeline:
                       build_args_from_env:
                         - DRONE_BRANCH
                         - DRONE_COMMIT
-                      password: <+secrets.getValue("docker_password")>
                       repo: nytimes/httptest
                       tags:
                         - dev
-                      username: <+secrets.getValue("docker_username")>
                   timeout: ""
                   type: Plugin
                   when:
@@ -86,9 +84,7 @@ pipeline:
                       build_args_from_env:
                         - DRONE_BRANCH
                         - DRONE_COMMIT
-                      password: <+secrets.getValue("docker_password")>
                       repo: nytimes/httptest
-                      username: <+secrets.getValue("docker_username")>
                   timeout: ""
                   type: Plugin
           infrastructure:
