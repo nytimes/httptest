@@ -20,8 +20,8 @@ pipeline:
           execution:
             steps:
               - step:
-                  identifier: build
-                  name: build
+                  identifier: gotest
+                  name: gotest
                   spec:
                     connectorRef: account.harnessImage
                     image: golang:alpine
@@ -38,8 +38,21 @@ pipeline:
                   timeout: ""
                   type: Run
               - step:
-                  identifier: test
-                  name: test
+                  identifier: build
+                  name: build
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: golang:alpine
+                    shell: Sh
+                    command: go build
+                    envVariables:
+                      CGO_ENABLED: "0"
+                      GOOS: linux
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: httptest
+                  name: httptest
                   spec:
                     connectorRef: account.harnessImage
                     image: golang:alpine
