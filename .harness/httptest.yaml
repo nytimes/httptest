@@ -61,33 +61,12 @@ pipeline:
                     shell: Sh
                     command: ./httptest
                     envVariables:
-                      CGO_ENABLED: "0"
-                      GOOS: linux
                       TEST_DIRECTORY: example-tests
                       TEST_ENV: dev
                       TEST_HOST: httpbin.org
                   timeout: ""
                   type: Run
                   when:
-                    stageStatus: Success
-                    condition: "false"
-              - step:
-                  identifier: publishdev
-                  name: publish-dev
-                  spec:
-                    connectorRef: account.harnessImage
-                    image: plugins/docker
-                    settings:
-                      build_args_from_env:
-                        - DRONE_BRANCH
-                        - DRONE_COMMIT
-                      repo: nytimes/httptest
-                      tags:
-                        - dev
-                  timeout: ""
-                  type: Plugin
-                  when:
-                    condition: "false"
                     stageStatus: Success
               - step:
                   identifier: publish
@@ -105,7 +84,6 @@ pipeline:
                   type: Plugin
                   when:
                     stageStatus: Success
-                    condition: "false"
           infrastructure:
             type: KubernetesDirect
             spec:
