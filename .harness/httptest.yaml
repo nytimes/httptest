@@ -20,19 +20,29 @@ pipeline:
                   identifier: build
                   name: build
                   spec:
+                    connectorRef: account.harnessImage
+                    image: golang:alpine
+                    shell: Sh
                     command: |-
-                      go build
-                      go test ./...
+                      go install github.com/jstemmer/go-junit-report
+                      go test -v 2>&1 ./... | go-junit-report > report.xml
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - "**/*.xml"
                     envVariables:
                       CGO_ENABLED: "0"
                       GOOS: linux
-                    image: golang:alpine
                   timeout: ""
                   type: Run
               - step:
                   identifier: test
                   name: test
                   spec:
+                    connectorRef: account.harnessImage
+                    image: golang:alpine
+                    shell: Sh
                     command: ./httptest
                     envVariables:
                       CGO_ENABLED: "0"
@@ -40,13 +50,16 @@ pipeline:
                       TEST_DIRECTORY: example-tests
                       TEST_ENV: dev
                       TEST_HOST: httpbin.org
-                    image: golang:alpine
                   timeout: ""
                   type: Run
+                  when:
+                    stageStatus: Success
+                    condition: "false"
               - step:
                   identifier: publishdev
                   name: publish-dev
                   spec:
+                    connectorRef: account.harnessImage
                     image: plugins/docker
                     settings:
                       build_args_from_env:
@@ -66,6 +79,7 @@ pipeline:
                   identifier: publish
                   name: publish
                   spec:
+                    connectorRef: account.harnessImage
                     image: plugins/docker
                     settings:
                       auto_tag: "true"
@@ -77,10 +91,12 @@ pipeline:
                       username: <+secrets.getValue("docker_username")>
                   timeout: ""
                   type: Plugin
-          platform:
-            arch: Amd64
-            os: Linux
-          runtime:
-            spec: {}
-            type: Cloud
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.kubernetesclusterconnector
+              namespace: dv-cd
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
         type: CI
