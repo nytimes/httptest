@@ -7,7 +7,10 @@ pipeline:
   properties:
     ci:
       codebase:
+        connectorRef: account.nytimesOrgGhConnector
+        repoName: httptest
         build: <+input>
+        sparseCheckout: []
   stages:
     - stage:
         identifier: default
