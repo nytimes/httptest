@@ -31,7 +31,7 @@ pipeline:
                       type: JUnit
                       spec:
                         paths:
-                          - "**/*.xml"
+                          - report.xml
                     envVariables:
                       CGO_ENABLED: "0"
                       GOOS: linux
@@ -50,6 +50,8 @@ pipeline:
                       GOOS: linux
                   timeout: ""
                   type: Run
+                  when:
+                    stageStatus: Success
               - step:
                   identifier: httptest
                   name: httptest
