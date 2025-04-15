@@ -1,0 +1,86 @@
+pipeline:
+  name: httptest
+  identifier: httptest
+  projectIdentifier: nytimes__devp_appdelivery_harness_test
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+    - stage:
+        identifier: default
+        name: default
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  identifier: build
+                  name: build
+                  spec:
+                    command: |-
+                      go build
+                      go test ./...
+                    envVariables:
+                      CGO_ENABLED: "0"
+                      GOOS: linux
+                    image: golang:alpine
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: test
+                  name: test
+                  spec:
+                    command: ./httptest
+                    envVariables:
+                      CGO_ENABLED: "0"
+                      GOOS: linux
+                      TEST_DIRECTORY: example-tests
+                      TEST_ENV: dev
+                      TEST_HOST: httpbin.org
+                    image: golang:alpine
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: publishdev
+                  name: publish-dev
+                  spec:
+                    image: plugins/docker
+                    settings:
+                      build_args_from_env:
+                        - DRONE_BRANCH
+                        - DRONE_COMMIT
+                      password: <+secrets.getValue("docker_password")>
+                      repo: nytimes/httptest
+                      tags:
+                        - dev
+                      username: <+secrets.getValue("docker_username")>
+                  timeout: ""
+                  type: Plugin
+                  when:
+                    condition: <+trigger.targetBranch> != "master" && (<+trigger.event> == "PUSH")
+                    stageStatus: Success
+              - step:
+                  identifier: publish
+                  name: publish
+                  spec:
+                    image: plugins/docker
+                    settings:
+                      auto_tag: "true"
+                      build_args_from_env:
+                        - DRONE_BRANCH
+                        - DRONE_COMMIT
+                      password: <+secrets.getValue("docker_password")>
+                      repo: nytimes/httptest
+                      username: <+secrets.getValue("docker_username")>
+                  timeout: ""
+                  type: Plugin
+          platform:
+            arch: Amd64
+            os: Linux
+          runtime:
+            spec: {}
+            type: Cloud
+        type: CI
