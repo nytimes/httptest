@@ -26,9 +26,7 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: golang:alpine
                     shell: Sh
-                    command: |-
-                      go install github.com/jstemmer/go-junit-report
-                      go test -v 2>&1 ./... | go-junit-report > report.xml
+                    command: go run gotest.tools/gotestsum@latest --junitfile report.xml
                     reports:
                       type: JUnit
                       spec:
