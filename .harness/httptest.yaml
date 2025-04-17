@@ -74,6 +74,9 @@ pipeline:
                   spec:
                     connectorRef: account.harnessImage
                     image: plugins/docker
+                    envVariables:
+                      PLUGIN_BUILDX_OPTIONS: "--platform linux/arm64,linux/amd64"
+                      PLUGIN_DRY_RUN: true
                     settings:
                       auto_tag: "true"
                       build_args_from_env:
