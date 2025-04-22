@@ -74,15 +74,14 @@ pipeline:
                   type: BuildAndPushDockerRegistry
                   spec:
                     connectorRef: account.harnessImage
+                    repo: nytimes/httptest
+                    tags:
+                      - latest
+                      - ${DRONE_BRANCH}
+                      - ${DRONE_COMMIT}
                     envVariables:
                       PLUGIN_BUILDX_OPTIONS: "--platform linux/arm64,linux/amd64"
-                      PLUGIN_DRY_RUN: true
-                    settings:
-                      auto_tag: "true"
-                      build_args_from_env:
-                        - DRONE_BRANCH
-                        - DRONE_COMMIT
-                      repo: nytimes/httptest
+                      PLUGIN_DRY_RUN: "true"
                   timeout: ""
                   when:
                     stageStatus: Success
