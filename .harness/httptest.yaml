@@ -37,6 +37,19 @@ pipeline:
                       GOOS: linux
                   timeout: ""
                   type: Run
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - AllErrors
+                        action:
+                          type: Retry
+                          spec:
+                            retryCount: 1
+                            retryIntervals:
+                              - 5s
+                            onRetryFailure:
+                              action:
+                                type: Abort
               - step:
                   identifier: build
                   name: build
@@ -66,6 +79,19 @@ pipeline:
                       TEST_HOST: httpbin.org
                   timeout: ""
                   type: Run
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - AllErrors
+                        action:
+                          type: Retry
+                          spec:
+                            retryCount: 3
+                            retryIntervals:
+                              - 5s
+                            onRetryFailure:
+                              action:
+                                type: Abort
                   when:
                     stageStatus: Success
               - step:
