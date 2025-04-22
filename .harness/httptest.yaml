@@ -77,8 +77,8 @@ pipeline:
                     repo: nytimes/httptest
                     tags:
                       - latest
-                      # - ${DRONE_BRANCH}
-                      # - ${DRONE_COMMIT}
+                      - <+codebase.branch>
+                      - <+codebase.commitSha>
                     buildArgs:
                       platform: linux/arm64,linux/amd64
                     envVariables:
