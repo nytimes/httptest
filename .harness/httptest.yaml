@@ -79,8 +79,9 @@ pipeline:
                       - latest
                       - ${DRONE_BRANCH}
                       - ${DRONE_COMMIT}
+                    buildArgs:
+                      platform: linux/arm64,linux/amd64
                     envVariables:
-                      PLUGIN_BUILDX_OPTIONS: "--platform linux/arm64,linux/amd64"
                       PLUGIN_DRY_RUN: "true"
                   timeout: ""
                   when:
