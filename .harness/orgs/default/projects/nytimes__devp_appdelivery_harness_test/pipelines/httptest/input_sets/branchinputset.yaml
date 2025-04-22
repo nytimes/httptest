@@ -1,0 +1,14 @@
+inputSet:
+  name: branch-input-set
+  identifier: branchinputset
+  orgIdentifier: default
+  projectIdentifier: nytimes__devp_appdelivery_harness_test
+  pipeline:
+    identifier: httptest
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
