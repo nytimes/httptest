@@ -71,9 +71,9 @@ pipeline:
               - step:
                   identifier: publish
                   name: publish
+                  type: BuildAndPushDockerRegistry
                   spec:
                     connectorRef: account.harnessImage
-                    image: plugins/docker
                     envVariables:
                       PLUGIN_BUILDX_OPTIONS: "--platform linux/arm64,linux/amd64"
                       PLUGIN_DRY_RUN: true
@@ -84,7 +84,6 @@ pipeline:
                         - DRONE_COMMIT
                       repo: nytimes/httptest
                   timeout: ""
-                  type: Plugin
                   when:
                     stageStatus: Success
           infrastructure:
