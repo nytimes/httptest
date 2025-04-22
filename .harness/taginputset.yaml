@@ -1,0 +1,14 @@
+inputSet:
+  name: tag-input-set
+  identifier: taginputset
+  orgIdentifier: default
+  projectIdentifier: nytimes__devp_appdelivery_harness_test
+  pipeline:
+    identifier: httptest
+    properties:
+      ci:
+        codebase:
+          build:
+            type: tag
+            spec:
+              tag: <+trigger.tag>
