@@ -1,6 +1,7 @@
 ---
 kind: pipeline
-name: default
+name: testing
+type: docker
 
 workspace:
   base: /go
@@ -10,15 +11,17 @@ steps:
   - name: build
     image: golang:alpine
     environment:
+      DOCKER_BUILDKIT: 1
       GOOS: linux
       CGO_ENABLED: 0
     commands:
-      - go build
       - go test ./...
+      - go build
 
   - name: test
     image: golang:alpine
     environment:
+      DOCKER_BUILDKIT: 1
       GOOS: linux
       CGO_ENABLED: 0
       TEST_DIRECTORY: example-tests
@@ -27,9 +30,18 @@ steps:
     commands:
       - ./httptest
 
-  - name: publish-dev
+---
+kind: pipeline
+name: publish-dev
+type: docker
+
+steps:
+  - name: publish-dev-amd64
     image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
     settings:
+      platform: linux/amd64
       repo: nytimes/httptest
       build_args_from_env:
         - DRONE_BRANCH
@@ -39,14 +51,18 @@ steps:
       password:
         from_secret: docker_password
       tags: [dev]
+      auto_tag_suffix: amd64
     when:
       event: [push]
       branch:
-        exclude: [master]
+        exclude: [main]
 
-  - name: publish
+  - name: publish-dev-arm64
     image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
     settings:
+      platform: linux/arm64
       repo: nytimes/httptest
       build_args_from_env:
         - DRONE_BRANCH
@@ -55,5 +71,124 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      # Information on auto_tag: http://plugins.drone.io/drone-plugins/drone-docker/
-      auto_tag: true
+      tags: [dev]
+      auto_tag_suffix: arm64
+    when:
+      event: [push]
+      branch:
+        exclude: [main]
+
+depends_on:
+  - testing
+
+---
+kind: pipeline
+name: manifest-dev
+type: docker
+
+steps:
+  - name: manifest
+    image: plugins/manifest
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: nytimes/httptest:dev
+      template: nytimes/httptest:dev-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+
+depends_on:
+  - publish-dev-amd64
+  - publish-dev-arm64
+
+---
+kind: pipeline
+name: publish
+type: docker
+
+steps:
+  - name: publish-amd64
+    image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      platform: linux/amd64
+      repo: nytimes/httptest
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - ${DRONE_TAG}
+        - latest
+      auto_tag_suffix: amd64
+
+  - name: publish-arm64
+    image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      platform: linux/arm64
+      repo: nytimes/httptest
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - ${DRONE_TAG}
+        - latest
+      auto_tag_suffix: arm64
+
+depends_on:
+  - manifest-dev
+
+---
+kind: pipeline
+name: manifest
+type: docker
+
+steps:
+  - name: manifest-tagged
+    image: plugins/manifest
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: nytimes/httptest:${DRONE_TAG}
+      template: nytimes/httptest:${DRONE_TAG}-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+
+  - name: manifest-latest
+    image: plugins/manifest
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: nytimes/httptest:latest
+      template: nytimes/httptest:latest-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+
+depends_on:
+  - publish-amd64
+  - publish-arm64

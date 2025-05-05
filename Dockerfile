@@ -1,5 +1,8 @@
 # Build container
-FROM golang:alpine
+FROM --platform=linux/amd64 golang:alpine as builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 ENV CGO_ENABLED=0
 ENV GOOS=linux
@@ -12,11 +15,11 @@ ARG DRONE_BRANCH
 ARG DRONE_COMMIT
 
 # Build application
-RUN go build -a -o /go/bin/httptest \
-    -ldflags "-extldflags \"-static\" \
-              -X main.BuildBranch=${DRONE_BRANCH} \
-              -X main.BuildCommit=${DRONE_COMMIT:0:8} \
-              -X main.BuildTime=$(date -Iseconds)"
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o /go/bin/httptest \
+  -ldflags "-extldflags \"-static\" \
+  -X main.BuildBranch=${DRONE_BRANCH} \
+  -X main.BuildCommit=${DRONE_COMMIT:0:8} \
+  -X main.BuildTime=$(date -Iseconds)"
 
 # Minimum runtime container
 FROM alpine
@@ -25,7 +28,7 @@ FROM alpine
 RUN apk add --no-cache ca-certificates
 
 # Copy built binary from build container
-COPY --from=0 /go/bin/httptest /bin/httptest
+COPY --from=builder /go/bin/httptest /bin/httptest
 
 # Default command
 CMD ["/bin/httptest"]
