@@ -1,8 +1,7 @@
 # Build container
-FROM --platform=linux/amd64 golang:alpine as builder
+FROM --platform=$BUILDPLATFORM golang:alpine AS build
 
-ARG TARGETOS
-ARG TARGETARCH
+ARG TARGETOS TARGETARCH
 
 ENV CGO_ENABLED=0
 
@@ -24,7 +23,7 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o /go/bin/httptest \
 FROM gcr.io/distroless/static-debian12
 
 # Copy built binary from build container
-COPY --from=builder /go/bin/httptest /bin/httptest
+COPY --from=build /go/bin/httptest /bin/httptest
 
 # Default command
 CMD ["/bin/httptest"]
