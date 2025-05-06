@@ -5,7 +5,6 @@ ARG TARGETOS
 ARG TARGETARCH
 
 ENV CGO_ENABLED=0
-ENV GOOS=linux
 
 COPY . /go/src/github.com/nytimes/httptest
 WORKDIR /go/src/github.com/nytimes/httptest
