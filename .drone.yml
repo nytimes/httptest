@@ -49,8 +49,8 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      tags: [dev]
-      auto_tag_suffix: amd64
+      tags: [dev-amd64]
+      # auto_tag_suffix:
       when:
         event: [push]
         branch:
@@ -70,8 +70,8 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      tags: [dev]
-      auto_tag_suffix: arm64
+      tags: [dev-arm64]
+      # auto_tag_suffix:
       when:
         event: [push]
         branch:
