@@ -21,11 +21,8 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o /go/bin/httptest \
   -X main.BuildCommit=${DRONE_COMMIT:0:8} \
   -X main.BuildTime=$(date -Iseconds)"
 
-# Minimum runtime container
-FROM alpine
-
-# Install packages
-RUN apk add --no-cache ca-certificates
+# Distroless runtime
+FROM gcr.io/distroless/static-debian12
 
 # Copy built binary from build container
 COPY --from=builder /go/bin/httptest /bin/httptest

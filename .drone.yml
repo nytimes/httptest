@@ -78,116 +78,107 @@ steps:
       branch:
         exclude: [main]
 
+  - name: manifest-dev
+    image: plugins/manifest
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: nytimes/httptest:dev
+      template: nytimes/httptest:dev-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    depends_on:
+      - publish-dev-amd64
+      - publish-dev-arm64
+
 depends_on:
   - testing
-# ---
-# kind: pipeline
-# name: manifest-dev
-# type: docker
 
-# steps:
-#   - name: manifest
-#     image: plugins/manifest
-#     environment:
-#       DOCKER_BUILDKIT: 1
-#     settings:
-#       username:
-#         from_secret: docker_username
-#       password:
-#         from_secret: docker_password
-#       target: nytimes/httptest:dev
-#       template: nytimes/httptest:dev-ARCH
-#       platforms:
-#         - linux/amd64
-#         - linux/arm64
+---
+kind: pipeline
+name: publish
+type: docker
 
-# depends_on:
-#   - publish-dev-amd64
-#   - publish-dev-arm64
+steps:
+  - name: publish-amd64
+    image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      platform: linux/amd64
+      repo: nytimes/httptest
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - ${DRONE_TAG}
+        - latest
+      auto_tag_suffix: amd64
+      when:
+        event: [tag]
 
-# ---
-# kind: pipeline
-# name: publish
-# type: docker
+  - name: publish-arm64
+    image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      platform: linux/arm64
+      repo: nytimes/httptest
+      build_args_from_env:
+        - DRONE_BRANCH
+        - DRONE_COMMIT
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - ${DRONE_TAG}
+        - latest
+      auto_tag_suffix: arm64
+      when:
+        event: [tag]
 
-# steps:
-#   - name: publish-amd64
-#     image: plugins/docker
-#     environment:
-#       DOCKER_BUILDKIT: 1
-#     settings:
-#       platform: linux/amd64
-#       repo: nytimes/httptest
-#       build_args_from_env:
-#         - DRONE_BRANCH
-#         - DRONE_COMMIT
-#       username:
-#         from_secret: docker_username
-#       password:
-#         from_secret: docker_password
-#       tags:
-#         - ${DRONE_TAG}
-#         - latest
-#       auto_tag_suffix: amd64
+  - name: manifest-tagged
+    image: plugins/manifest
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: nytimes/httptest:${DRONE_TAG}
+      template: nytimes/httptest:${DRONE_TAG}-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    depends_on:
+      - publish-amd64
+      - publish-arm64
 
-#   - name: publish-arm64
-#     image: plugins/docker
-#     environment:
-#       DOCKER_BUILDKIT: 1
-#     settings:
-#       platform: linux/arm64
-#       repo: nytimes/httptest
-#       build_args_from_env:
-#         - DRONE_BRANCH
-#         - DRONE_COMMIT
-#       username:
-#         from_secret: docker_username
-#       password:
-#         from_secret: docker_password
-#       tags:
-#         - ${DRONE_TAG}
-#         - latest
-#       auto_tag_suffix: arm64
-
-# depends_on:
-#   - manifest-dev
-
-# ---
-# kind: pipeline
-# name: manifest
-# type: docker
-
-# steps:
-#   - name: manifest-tagged
-#     image: plugins/manifest
-#     environment:
-#       DOCKER_BUILDKIT: 1
-#     settings:
-#       username:
-#         from_secret: docker_username
-#       password:
-#         from_secret: docker_password
-#       target: nytimes/httptest:${DRONE_TAG}
-#       template: nytimes/httptest:${DRONE_TAG}-ARCH
-#       platforms:
-#         - linux/amd64
-#         - linux/arm64
-
-#   - name: manifest-latest
-#     image: plugins/manifest
-#     environment:
-#       DOCKER_BUILDKIT: 1
-#     settings:
-#       username:
-#         from_secret: docker_username
-#       password:
-#         from_secret: docker_password
-#       target: nytimes/httptest:latest
-#       template: nytimes/httptest:latest-ARCH
-#       platforms:
-#         - linux/amd64
-#         - linux/arm64
-
-# depends_on:
-#   - publish-amd64
-#   - publish-arm64
+  - name: manifest-latest
+    image: plugins/manifest
+    environment:
+      DOCKER_BUILDKIT: 1
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: nytimes/httptest:latest
+      template: nytimes/httptest:latest-ARCH
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    depends_on:
+      - publish-amd64
+      - publish-arm64
