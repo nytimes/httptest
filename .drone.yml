@@ -60,7 +60,7 @@ steps:
         from_secret: docker_password
       tags: [dev-amd64]
     when:
-      event: [pull_request]
+      event: [push]
       branch:
         exclude: [main]
 
@@ -79,10 +79,10 @@ steps:
       password:
         from_secret: docker_password
       tags: [dev-arm64]
-      when:
-        event: [pull_request]
-        branch:
-          exclude: [main]
+    when:
+      event: [push]
+      branch:
+        exclude: [main]
 
   - name: manifest-dev
     image: plugins/manifest
@@ -98,10 +98,10 @@ steps:
       platforms:
         - linux/amd64
         - linux/arm64
-      when:
-        event: [push]
-        branch:
-          exclude: [main]
+    when:
+      event: [push]
+      branch:
+        exclude: [main]
     depends_on:
       - publish-dev-amd64
       - publish-dev-arm64
