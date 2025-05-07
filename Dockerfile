@@ -19,10 +19,10 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o /go/bin/httptest \
   -X main.BuildCommit=${DRONE_COMMIT:0:8} \
   -X main.BuildTime=$(date -Iseconds)"
 
-# Distroless runtime
+# Distroless; smaller than Alpine, has SSL included, works for multi-arch
 FROM gcr.io/distroless/static-debian12
 
-# Copy built binary from build container
+# Copy binary from build container
 COPY --from=build /go/bin/httptest /bin/httptest
 
 # Default command

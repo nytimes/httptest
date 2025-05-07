@@ -97,21 +97,37 @@ pipeline:
               - step:
                   identifier: publish
                   name: publish
-                  type: BuildAndPushDockerRegistry
+                  type: BuildAndPushECR
                   spec:
-                    connectorRef: account.harnessImage
-                    repo: nytimes/httptest
+                    connectorRef: dvCdDevAwsConnector
+                    region: us-east-1
+                    account: "552276524664"
+                    imageName: httptest
                     tags:
-                      - latest
-                      - <+codebase.branch>
-                      - <+codebase.commitSha>
+                      - dev
+                      - <+codebase.shortCommitSha>
                     buildArgs:
                       platform: linux/arm64,linux/amd64
-                    envVariables:
-                      PLUGIN_DRY_RUN: "true"
-                  timeout: ""
-                  when:
-                    stageStatus: Success
+                    when:
+                      stageStatus: Success
+              # - step:
+              #     identifier: publish
+              #     name: publish
+              #     type: BuildAndPushDockerRegistry
+              #     spec:
+              #       connectorRef: account.harnessImage
+              #       repo: nytimes/httptest
+              #       tags:
+              #         - latest
+              #         - <+codebase.branch>
+              #         - <+codebase.commitSha>
+              #       buildArgs:
+              #         platform: linux/arm64,linux/amd64
+              #       envVariables:
+              #         PLUGIN_DRY_RUN: "true"
+              #     timeout: ""
+              #     when:
+              #       stageStatus: Success
           infrastructure:
             type: KubernetesDirect
             spec:
