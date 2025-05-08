@@ -136,7 +136,6 @@ pipeline:
               automountServiceAccountToken: true
               nodeSelector: {}
               os: Linux
-          variables:
-            - name: arch
-              values: ["amd64", "arm64"]
+          matrix:
+            arch: ["amd64", "arm64"]
         type: CI
