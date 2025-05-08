@@ -106,10 +106,29 @@ pipeline:
                     envVariables:
                       PLUGIN_PLATFORM: "linux/arm64"
                     tags:
-                      - dev
-                      - <+codebase.shortCommitSha>
+                      - dev-<+matrix.arch>
+                      - <+codebase.shortCommitSha>-<+matrix.arch>
+                    buildArgs:
+                      TARGETARCH: <+matrix.arch>
                     when:
                       stageStatus: Success
+              # - step:
+              #     identifier: create_manifest
+              #     name: Create Manifest
+              #     type: Run
+              #     spec:
+              #       connectorRef: dvCdDevAwsConnector
+              #       image: docker:latest
+              #       shell: Sh
+              #       command: |
+              #         # step 0 store the output of `aws ecr get-login-password --region` in a variable that we can access in this pipeline...
+              #         echo $password | docker login --username AWS --password-stdin 552276524664.dkr.ecr.us-east-1.amazonaws.com
+              #         docker manifest create 552276524664.dkr.ecr.us-east-1.amazonaws.com/httptest:dev \
+              #         --amend 52276524664.dkr.ecr.us-east-1.amazonaws.com/httptest:dev-amd64 \
+              #         --amend 552276524664.dkr.ecr.us-east-1.amazonaws.com/httptest:dev-arm64
+              #         docker manifest push --purge 552276524664.dkr.ecr.us-east-1.amazonaws.com/httptest:dev
+              #       when:
+              #         stageStatus: Success
           infrastructure:
             type: KubernetesDirect
             spec:
@@ -118,4 +137,7 @@ pipeline:
               automountServiceAccountToken: true
               nodeSelector: {}
               os: Linux
+          variables:
+            - name: arch
+              values: ["amd64", "arm64"]
         type: CI
