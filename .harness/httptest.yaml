@@ -103,14 +103,17 @@ pipeline:
                     region: us-east-1
                     account: "552276524664"
                     imageName: httptest
-                    envVariables:
-                      PLUGIN_PLATFORM: linux/<+matrix.arch>
-                      TARGETARCH: <+matrix.arch>
                     tags:
                       - dev-<+matrix.arch>
                       - <+codebase.shortCommitSha>-<+matrix.arch>
-                    when:
-                      stageStatus: Success
+                    envVariables:
+                      PLUGIN_PLATFORM: linux/<+matrix.arch>
+                      TARGETARCH: <+matrix.arch>
+                  strategy:
+                    matrix:
+                      arch:
+                        - arm64
+                        - amd64
           infrastructure:
             type: KubernetesDirect
             spec:
