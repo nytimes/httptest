@@ -104,8 +104,7 @@ pipeline:
                     account: "552276524664"
                     imageName: httptest
                     envVariables:
-                      PLUGIN_PLATFORM: "linux/arm64,linux/x86_64"
-                      DOCKER_BUILDKIT: "1"
+                      PLUGIN_PLATFORM: "linux/arm64"
                     tags:
                       - dev
                       - <+codebase.shortCommitSha>
