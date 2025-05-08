@@ -104,12 +104,11 @@ pipeline:
                     account: "552276524664"
                     imageName: httptest
                     envVariables:
-                      PLUGIN_PLATFORM: "linux/arm64"
+                      PLUGIN_PLATFORM: linux/<+matrix.arch>
+                      TARGETARCH: <+matrix.arch>
                     tags:
                       - dev-<+matrix.arch>
                       - <+codebase.shortCommitSha>-<+matrix.arch>
-                    buildArgs:
-                      TARGETARCH: <+matrix.arch>
                     when:
                       stageStatus: Success
               # - step:
