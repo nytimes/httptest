@@ -113,6 +113,7 @@ pipeline:
                       arch:
                         - arm64
                         - amd64
+                      nodeName: publish_<+matrix.arch>
           infrastructure:
             type: KubernetesDirect
             spec:
