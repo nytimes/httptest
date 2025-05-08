@@ -103,31 +103,13 @@ pipeline:
                     region: us-east-1
                     account: "552276524664"
                     imageName: httptest
+                    envVariables:
+                      PLUGIN_BUILDX_OPTIONS: "--platform linux/arm64,linux/x86_64"
                     tags:
                       - dev
                       - <+codebase.shortCommitSha>
-                    buildArgs:
-                      platform: linux/arm64,linux/amd64
                     when:
                       stageStatus: Success
-              # - step:
-              #     identifier: publish
-              #     name: publish
-              #     type: BuildAndPushDockerRegistry
-              #     spec:
-              #       connectorRef: account.harnessImage
-              #       repo: nytimes/httptest
-              #       tags:
-              #         - latest
-              #         - <+codebase.branch>
-              #         - <+codebase.commitSha>
-              #       buildArgs:
-              #         platform: linux/arm64,linux/amd64
-              #       envVariables:
-              #         PLUGIN_DRY_RUN: "true"
-              #     timeout: ""
-              #     when:
-              #       stageStatus: Success
           infrastructure:
             type: KubernetesDirect
             spec:
