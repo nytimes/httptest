@@ -108,7 +108,6 @@ pipeline:
                       - <+codebase.shortCommitSha>-<+matrix.arch>
                     envVariables:
                       PLUGIN_PLATFORM: linux/<+matrix.arch>
-                      TARGETARCH: <+matrix.arch>
                   strategy:
                     matrix:
                       arch:
