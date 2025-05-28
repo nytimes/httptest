@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on:
-      group: nyt-runners
-      labels: nyt-2-core 
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up Docker
