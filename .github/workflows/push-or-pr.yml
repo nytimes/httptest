@@ -1,21 +1,47 @@
-name: CI
+name: Push or PR
 
 on:
   push:
-    branches: ["main"]
+    branches: ["*"]
   pull_request:
     branches: ["main"]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v4
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+      - run: go version
+
+      - name: Install dependencies
+        run: go get .
+
+      - name: Go Tests
+        run: go test -v ./...
+
+      - name: Build httptest
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: go build
+
+      - name: Test httptest
+        env:
+          TEST_DIRECTORY: example-tests
+          TEST_HOST: httpbin.org
+          TEST_ENV: dev
+        run: ./httptest
+
+  build:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
       - name: Set up Docker
         uses: docker/setup-docker-action@v4
         with:
