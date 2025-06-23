@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/drone/envsubst v1.0.3
 	github.com/fatih/color v1.18.0
-	github.com/hashicorp/go-retryablehttp v0.7.7
+	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/pretty v1.2.1
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
