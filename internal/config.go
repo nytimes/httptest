@@ -36,35 +36,35 @@ type Config struct {
 func FromEnv() (*Config, error) {
 	// Parse non-string values
 	concurrency, err := strconv.Atoi(getEnv("TEST_CONCURRENCY", "2"))
+
 	if err != nil {
 		return nil, fmt.Errorf("invalid concurrency value: %s", err)
 	}
+
 	if concurrency < 1 {
 		return nil, fmt.Errorf("invalid concurrency value: %d", concurrency)
 	}
 
 	verbosity, err := strconv.Atoi(getEnv("TEST_VERBOSITY", "0"))
+
 	if err != nil {
 		return nil, fmt.Errorf("invalid verbosity value: %s", err)
 	}
+
 	if verbosity < 0 {
 		return nil, fmt.Errorf("invalid verbosity value: %d", verbosity)
 	}
 
-	printFailedOnly := false
-	if getEnv("TEST_PRINT_FAILED_ONLY", "false") == "true" {
-		printFailedOnly = true
-	}
+	printFailedOnly := getEnv("TEST_PRINT_FAILED_ONLY", "false") == "true"
 
-	enableRetries := false
-	if getEnv("ENABLE_RETRIES", "false") == "true" {
-		enableRetries = true
-	}
+	enableRetries := getEnv("ENABLE_RETRIES", "false") == "true"
 
 	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "2"))
+
 	if err != nil {
 		return nil, fmt.Errorf("invalid default retry count value: %s", err)
 	}
+
 	if retryCount < 0 {
 		return nil, fmt.Errorf("invalid default retry count value: %d", retryCount)
 	}
@@ -87,16 +87,20 @@ func ApplyConfig(config *Config) error {
 		if len(config.Host) < 1 {
 			return fmt.Errorf("TEST_HOST is required to use DNS override")
 		}
+
 		return AppendHostsFile(fmt.Sprintf("%s %s", config.DNSOverride, config.Host))
 	}
+
 	return nil
 }
 
 // Read environment variable with default values
 func getEnv(key string, defaultValue string) string {
 	val := os.Getenv(key)
+
 	if len(val) == 0 {
 		return defaultValue
 	}
+
 	return val
 }

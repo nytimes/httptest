@@ -23,6 +23,7 @@ import (
 // PrintTestResult prints result of a single test
 func PrintTestResult(test *Test, result *TestResult) {
 	color.NoColor = false
+
 	fmt.Println("")
 
 	// Print colored status text
@@ -35,6 +36,7 @@ func PrintTestResult(test *Test, result *TestResult) {
 		} else {
 			output = "PASSED"
 		}
+
 		color.HiGreen(output)
 	} else {
 		color.HiRed("FAILED")
@@ -46,6 +48,7 @@ func PrintTestResult(test *Test, result *TestResult) {
 	// Print all errors
 	if len(result.Errors) > 0 {
 		fmt.Printf("errors:\n")
+
 		for _, err := range result.Errors {
 			fmt.Printf("%s\n", err.Error())
 		}

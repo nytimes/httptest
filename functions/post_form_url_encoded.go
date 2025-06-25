@@ -3,7 +3,7 @@ package functions
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -43,15 +43,21 @@ func PostFormURLEncoded(existingHeaders map[string]string, args []string) (strin
 
 	// Send the request
 	client := &http.Client{}
+
 	client.Timeout = time.Second * timeoutSeconds
+
 	response, err := client.PostForm(endpoint, requestBody)
+
 	if err != nil {
 		return "", err
 	}
-	responseBody, err := ioutil.ReadAll(response.Body)
+
+	responseBody, err := io.ReadAll(response.Body)
+
 	if err != nil {
 		return "", err
 	}
+
 	defer response.Body.Close()
 
 	return retrieveElement(responseBody, responseElement)
@@ -68,6 +74,7 @@ func argsToRequestBody(existingHeaders map[string]string, args []string) url.Val
 		} else {
 			parts = strings.SplitN(arg, "=", 2)
 		}
+
 		values.Add(parts[0], parts[1])
 	}
 
@@ -80,15 +87,16 @@ func retrieveElement(data []byte, field string) (string, error) {
 	if field == "" {
 		if validJSON {
 			return string(pretty.Ugly(data)), nil
-		} else {
-			return string(data), nil
 		}
-	} else {
-		if validJSON {
-			result := gjson.GetBytes(data, field).String()
-			return string(pretty.Ugly([]byte(result))), nil
-		} else {
-			return "", fmt.Errorf("invalid JSON")
-		}
+
+		return string(data), nil
 	}
+
+	if validJSON {
+		result := gjson.GetBytes(data, field).String()
+
+		return string(pretty.Ugly([]byte(result))), nil
+	}
+
+	return "", fmt.Errorf("invalid JSON")
 }

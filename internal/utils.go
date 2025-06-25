@@ -22,11 +22,12 @@ import (
 // AppendHostsFile appends a string to /etc/hosts as a new line
 func AppendHostsFile(content string) error {
 	f, err := os.OpenFile("/etc/hosts", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
 	if err != nil {
 		return err
 	}
 
-	if _, err := f.Write([]byte(fmt.Sprintf("\n%s\n", content))); err != nil {
+	if _, err := fmt.Fprintf(f, "\n%s\n", content); err != nil {
 		return err
 	}
 

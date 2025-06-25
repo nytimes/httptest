@@ -23,19 +23,25 @@ import (
 // ProcessDynamicHeaders creates headers based on the function and adds them to the map of all headers.
 func ProcessDynamicHeaders(dynamicHeaders []DynamicHeader, allHeaders map[string]string) error {
 	for _, dynamicHeader := range dynamicHeaders {
-		if _, present := allHeaders[dynamicHeader.Name]; present {
+		if _, exists := allHeaders[dynamicHeader.Name]; exists {
 			return fmt.Errorf("cannot process dynamic header %s; a header with that name is already defined", dynamicHeader.Name)
 		}
-		if fn, ok := funcMap[dynamicHeader.Function]; !ok {
+
+		dhfn, exists := funcMap[dynamicHeader.Function]
+
+		if !exists {
 			return fmt.Errorf("unknown function %s", dynamicHeader.Function)
-		} else {
-			var err error
-			allHeaders[dynamicHeader.Name], err = fn(allHeaders, dynamicHeader.Args)
-			if err != nil {
-				return err
-			}
 		}
+
+		value, err := dhfn(allHeaders, dynamicHeader.Args)
+
+		if err != nil {
+			return err
+		}
+
+		allHeaders[dynamicHeader.Name] = value
 	}
+
 	return nil
 }
 

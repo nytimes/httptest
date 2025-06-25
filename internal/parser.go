@@ -16,7 +16,6 @@ package internal
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -70,12 +69,14 @@ type DynamicHeader struct {
 // ParseAllTestsInDirectory recursively parses all test definition files in a given directory
 func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 	files := []string{}
+
 	var dirWalkError error
 
-	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("error: %s\n", err)
 			dirWalkError = err
+
 			return nil
 		}
 
@@ -90,16 +91,24 @@ func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 		}
 
 		files = append(files, path)
+
 		return nil
 	})
+
+	// handle any filepath.Walk errors
+	if err != nil {
+		return nil, err
+	}
 
 	if dirWalkError != nil {
 		return nil, dirWalkError
 	}
 
 	allTests := []*Test{}
+
 	for _, p := range files {
 		tests, err := parseTestFile(p)
+
 		if err != nil {
 			return nil, err
 		}
@@ -111,19 +120,22 @@ func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 
 func parseTestFile(filePath string) ([]*Test, error) {
 	// Read file into buffer
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
+
 	if err != nil {
 		return nil, fmt.Errorf("ioutil: %v", err)
 	}
 
 	// Environment variable substitution
 	yamlString, err := envsubst.EvalEnv(string(data))
+
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse file %s: %v", filePath, err)
 	}
 
 	// Parse as YAML
 	tf := TestFile{}
+
 	err = yaml.Unmarshal([]byte(yamlString), &tf)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse file %s: %v", filePath, err)
@@ -131,6 +143,7 @@ func parseTestFile(filePath string) ([]*Test, error) {
 
 	// Add file path to tests
 	fileName := path.Base(filePath)
+
 	for _, test := range tf.Tests {
 		test.Filename = fileName
 	}
