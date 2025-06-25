@@ -17,6 +17,7 @@ package internal
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -103,7 +104,8 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 				return http.ErrUseLastResponse
 			},
 			Transport: &http.Transport{
-				// TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
+				//nolint:gosec
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
 			},
 			Timeout: config.Timeout * time.Second,
 		},
