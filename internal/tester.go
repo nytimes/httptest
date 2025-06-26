@@ -45,10 +45,12 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 
 	// Check test conditions and skip if not met
 	conditionsMet, err := validateConditions(test)
+
 	if err != nil {
 		result.Errors = append(result.Errors, err)
 		return result
 	}
+
 	if !conditionsMet {
 		// Skip test
 		result.Skipped = true
@@ -62,13 +64,14 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		body = strings.NewReader(test.Request.Body)
 	}
 
-	retryCallback := func(ctx context.Context, resp *http.Response, inErr error) (bool, error) {
+	retryCallback := func(_ context.Context, resp *http.Response, inErr error) (bool, error) {
 		if inErr != nil {
 			// retry is there is an error with the request
 			return true, nil
 		}
 
 		errs := validateResponseStatus(test, resp)
+
 		if len(errs) >= 1 {
 			// retry if there is an error
 			return true, nil
@@ -83,7 +86,7 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		URL:                  url,
 		Headers:              test.Request.Headers,
 		Body:                 body,
-		TimeoutSeconds:       60,
+		Timeout:              60,
 		SkipCertVerification: test.SkipCertVerification,
 		RetryCallback:        retryCallback,
 		MaxRetries:           maxRetries,
@@ -98,6 +101,7 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		result.Retries = i
 
 		resp, respBody, err := SendHTTPRequest(reqConfig)
+
 		if err != nil {
 			result.Errors = append(result.Errors, err)
 			continue
@@ -124,23 +128,29 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 func preProcessTest(test *Test, defaultHost string) error {
 	// Scheme
 	scheme := stringValue(test.Request.Scheme, "https")
+
 	if scheme != "http" && scheme != "https" {
 		return fmt.Errorf("invalid scheme %s. only http and https are supported", scheme)
 	}
+
 	test.Request.Scheme = scheme
 
 	// Host
 	host := stringValue(test.Request.Host, defaultHost)
+
 	if len(host) == 0 {
 		return fmt.Errorf("no host specified for this test and no default host set")
 	}
+
 	test.Request.Host = host
 
 	// Method
 	method := stringValue(test.Request.Method, "GET")
+
 	if method != "GET" && method != "POST" && method != "PUT" && method != "PATCH" && method != "DELETE" && method != "HEAD" && method != "OPTIONS" && method != "PURGE" && method != "PROPFIND" {
 		return fmt.Errorf("invalid method %s. only GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, PURGE, PROPFIND are supported", method)
 	}
+
 	test.Request.Method = method
 
 	// Path
@@ -160,9 +170,11 @@ func preProcessTest(test *Test, defaultHost string) error {
 	// Convert header fields to lowercase
 	// https://tools.ietf.org/html/rfc7540#section-8.1.2
 	headers := map[string]string{}
+
 	for k, v := range test.Request.Headers {
 		headers[strings.ToLower(k)] = v
 	}
+
 	test.Request.Headers = headers
 
 	return nil
@@ -172,6 +184,7 @@ func stringValue(val, defaultVal string) string {
 	if len(val) > 0 {
 		return val
 	}
+
 	return defaultVal
 }
 
@@ -179,6 +192,7 @@ func validateConditions(test *Test) (bool, error) {
 	// Environment variable
 	for key, pattern := range test.Conditions.Env {
 		re, err := regexp.Compile("(?i)" + pattern)
+
 		if err != nil {
 			return false, fmt.Errorf("%s", err.Error())
 		}
@@ -206,6 +220,7 @@ func validateResponseStatus(test *Test, response *http.Response) []error {
 	expected := test.Response
 
 	matched := false
+
 	for _, code := range expected.StatusCodes {
 		if code == response.StatusCode {
 			matched = true
@@ -231,6 +246,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 
 	// NotPresent assertions
 	npAssertions := expectedResponse.Headers.NotPresent
+
 	for _, header := range npAssertions {
 		if len(response.Header.Get(header)) > 0 {
 			errors = append(errors, fmt.Errorf("found unexpected response header \"%s\"", header))
@@ -242,6 +258,7 @@ func validateResponseHeaders(test *Test, response *http.Response) []error {
 	//		1. If the header doesn't exists, the test automatically passes.
 	//		2. If the header does exist, validate against the not matching assertions.
 	ipnmHeaders := expectedResponse.Headers.IfPresentNotMatching
+
 	for header := range ipnmHeaders {
 		if len(response.Header.Get(header)) > 0 {
 			errors = append(errors, validateResponseHeaderPatterns(response, ipnmHeaders, false)...)
@@ -257,6 +274,7 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 	// Patterns
 	for header, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
+
 		if err != nil {
 			errors = append(errors, fmt.Errorf("invalid test pattern `%s`: %s", pattern, err.Error()))
 			continue
@@ -264,17 +282,20 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 
 		// Get all instances of the response header
 		values, ok := response.Header[http.CanonicalHeaderKey(header)]
+
 		if !ok {
 			if expectedToMatch {
 				errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to match pattern \"%s\"", header, pattern))
 			} else {
 				errors = append(errors, fmt.Errorf("response header \"%s\" not found, expected to be present", header))
 			}
+
 			continue
 		}
 
 		// Try to match pattern from one of the instances
 		matched := false
+
 		for _, value := range values {
 			value = strings.ToLower(value)
 			if re.MatchString(value) {
@@ -294,12 +315,14 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 	return errors
 }
 
-func validateResponseBody(test *Test, response *http.Response, body []byte) []error {
+func validateResponseBody(test *Test, _ *http.Response, body []byte) []error {
 	errors := []error{}
 
 	patterns := test.Response.Body.Patterns
+
 	for _, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
+
 		if err != nil {
 			errors = append(errors, fmt.Errorf("%s", err.Error()))
 			continue

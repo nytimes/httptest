@@ -35,7 +35,7 @@ type HTTPRequestConfig struct {
 	BasicAuthUsername    string
 	BasicAuthPassword    string
 	Body                 io.Reader
-	TimeoutSeconds       time.Duration
+	Timeout              time.Duration
 	SkipCertVerification bool
 	MaxRetries           int
 	RetryCallback        func(ctx context.Context, resp *http.Response, err error) (bool, error)
@@ -56,8 +56,8 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		return nil, nil, fmt.Errorf("URL is required")
 	}
 
-	if config.TimeoutSeconds == 0 {
-		config.TimeoutSeconds = 10
+	if config.Timeout == 0 {
+		config.Timeout = 10
 	}
 
 	// Create request
@@ -74,9 +74,11 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	// Query params
 	if len(config.QueryParams) > 0 {
 		q := req.URL.Query()
+
 		for k, v := range config.QueryParams {
 			q.Add(k, v)
 		}
+
 		req.URL.RawQuery = q.Encode()
 	}
 
@@ -98,13 +100,14 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 
 	client := retryablehttp.Client{
 		HTTPClient: &http.Client{
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
 			Transport: &http.Transport{
+				//nolint:gosec
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
 			},
-			Timeout: time.Duration(config.TimeoutSeconds * time.Second),
+			Timeout: config.Timeout * time.Second,
 		},
 	}
 
@@ -115,7 +118,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		client.Backoff = retryablehttp.DefaultBackoff
 	} else {
 		// Don't retry requests
-		client.CheckRetry = func(ctx context.Context, resp *http.Response, inErr error) (bool, error) { return false, nil }
+		client.CheckRetry = func(_ context.Context, _ *http.Response, _ error) (bool, error) { return false, nil }
 	}
 
 	// Start sending request
@@ -130,6 +133,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 
 	// Read body into a buffer
 	buf := new(bytes.Buffer)
+
 	_, err = buf.ReadFrom(resp.Body)
 	if err != nil {
 		return resp, nil, err

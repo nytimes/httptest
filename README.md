@@ -1,6 +1,7 @@
 # httptest
 
-[![Build Status](https://drone.dv.nyt.net/api/badges/nytimes/httptest/status.svg)](https://drone.dv.nyt.net/nytimes/httptest)
+[![Build](https://github.com/nytimes/httptest/actions/workflows/pull-request.yml/badge.svg)](https://github.com/nytimes/httptest/actions/workflows/pull-request.yml)[![Release](https://github.com/nytimes/httptest/actions/workflows/tagged-release.yml/badge.svg)](https://github.com/nytimes/httptest/actions/workflows/tagged-release.yml)
+
 
 A simple concurrent HTTP testing tool
 

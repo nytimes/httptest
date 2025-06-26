@@ -34,6 +34,7 @@ func RunTests(tests []*Test, config *Config) bool {
 			defer func() { <-sem }()
 
 			maxRetries := 0
+
 			if config.EnableRetries {
 				maxRetries = config.RetryCount
 			}
@@ -46,14 +47,17 @@ func RunTests(tests []*Test, config *Config) bool {
 
 			if result.Skipped {
 				skipped++
+
 				if !config.PrintFailedTestsOnly {
 					PrintTestResult(t, result)
 				}
 			} else if len(result.Errors) > 0 {
 				failed++
+
 				PrintTestResult(t, result)
 			} else {
 				passed++
+
 				if !config.PrintFailedTestsOnly {
 					PrintTestResult(t, result)
 				}
@@ -63,14 +67,11 @@ func RunTests(tests []*Test, config *Config) bool {
 	}
 
 	// Wait for all goroutines to finish
-	for i := 0; i < cap(sem); i++ {
+	for range cap(sem) {
 		sem <- 0
 	}
 
 	PrintTestSummary(passed, failed, skipped)
 
-	if failed > 0 {
-		return false
-	}
-	return true
+	return failed <= 0
 }

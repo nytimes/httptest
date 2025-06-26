@@ -1,0 +1,85 @@
+version: "2"
+run:
+  tests: true
+linters:
+  default: none
+  enable:
+    - errcheck
+    - goconst
+    - gocyclo
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - mnd
+    - revive
+    - staticcheck
+    - unconvert
+    - unparam
+    - unused
+    - wsl
+  settings:
+    errcheck:
+      check-type-assertions: false
+      check-blank: false
+    goconst:
+      min-len: 2
+      min-occurrences: 3
+    gocyclo:
+      min-complexity: 20
+    lll:
+      line-length: 132
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - return
+      ignored-numbers:
+        - "2"
+        - "0644"
+
+    wsl:
+      strict-append: false
+      allow-separated-leading-comment: true
+      allow-cuddle-declarations: true
+      force-short-decl-cuddling: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - staticcheck
+        text: "ST1000:"
+    paths:
+      - docs
+      - kitlog
+      - node_modules
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/nytm
+        - github.com/nytimes
+        - github.com/NYTimes
+  exclusions:
+    generated: lax
+    paths:
+      - docs
+      - kitlog
+      - node_modules
+      - third_party$
+      - builtin$
+      - examples$

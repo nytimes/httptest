@@ -43,7 +43,7 @@ const testJSONArray = `[
 
 const testBadResponse = `["a", "b", "c"`
 
-const testBadJsonResponse = `{
+const testBadJSONResponse = `{
 "nested": {
 	"object": {
 		"data": "123"
@@ -122,9 +122,11 @@ func TestPostFormURLEncoded(t *testing.T) {
 
 	for _, tc := range tests {
 		actual, err := PostFormURLEncoded(tc.existingHeaders, tc.args)
+
 		if actual != tc.expected {
 			t.Errorf("PostFormURLEncoded(%v, %v): expected %v, actual %v", tc.existingHeaders, tc.args, tc.expected, actual)
 		}
+
 		if err != tc.err && err.Error() != tc.err.Error() {
 			t.Errorf("PostFormURLEncoded(%v, %v): expected %v, got: %v", tc.existingHeaders, tc.args, tc.err, err)
 		}
@@ -141,16 +143,16 @@ func TestArgsToRequestBody(t *testing.T) {
 			map[string]string{},
 			[]string{"foo=bar", "abc=123", "xyz=456"},
 			map[string][]string{
-				"foo": []string{"bar"},
-				"abc": []string{"123"},
-				"xyz": []string{"456"},
+				"foo": {"bar"},
+				"abc": {"123"},
+				"xyz": {"456"},
 			},
 		},
 		{
 			map[string]string{},
 			[]string{"foo=bar"},
 			map[string][]string{
-				"foo": []string{"bar"},
+				"foo": {"bar"},
 			},
 		},
 		{
@@ -160,15 +162,16 @@ func TestArgsToRequestBody(t *testing.T) {
 			},
 			[]string{"foo=bar", "x-previous-header2", "xyz=456"},
 			map[string][]string{
-				"foo": []string{"bar"},
-				"abc": []string{"123"},
-				"xyz": []string{"456"},
+				"foo": {"bar"},
+				"abc": {"123"},
+				"xyz": {"456"},
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		actual := argsToRequestBody(tc.existingHeaders, tc.args)
+
 		if actual.Encode() != tc.expected.Encode() {
 			t.Errorf("argsToRequestBody(%v, %v): expected %v, actual %v", tc.existingHeaders, tc.args, tc.expected, actual)
 		}
@@ -311,7 +314,7 @@ func TestRetrieveElement(t *testing.T) {
 			nil,
 		},
 		{
-			testBadJsonResponse,
+			testBadJSONResponse,
 			"nested.object.data",
 			"",
 			errors.New("invalid JSON"),
@@ -332,9 +335,11 @@ func TestRetrieveElement(t *testing.T) {
 
 	for _, tc := range tests {
 		actual, err := retrieveElement([]byte(tc.json), tc.element)
-		if string(actual) != tc.expected {
+
+		if actual != tc.expected {
 			t.Errorf("retrieveElement(%v, %v): expected %v, actual %v", tc.json, tc.element, tc.expected, actual)
 		}
+
 		if err != tc.err && err.Error() != tc.err.Error() {
 			t.Errorf("retrieveElement(%v, %v): expected %v, got: %v", tc.json, tc.element, tc.err, err)
 		}

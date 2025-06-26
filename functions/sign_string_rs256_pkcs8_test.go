@@ -33,9 +33,11 @@ mnopqr
 
 	for _, tc := range FormatKeyTests {
 		actual, err := formatKey(tc.input, tc.encrypted)
+
 		if actual != tc.expected {
 			t.Errorf("formatKey(%v, %v): expected %v, actual %v", tc.input, tc.encrypted, tc.expected, actual)
 		}
+
 		if err != tc.err {
 			t.Errorf("formatKey(%v, %v): expected %v, got: %v", tc.input, tc.encrypted, tc.err, err)
 		}
@@ -59,6 +61,7 @@ func TestValidateSignStringRS256PKCS8(t *testing.T) {
 
 	for _, tc := range tests {
 		actual := validateSignStringRS256PKCS8(tc.args)
+
 		if actual != tc.valid {
 			t.Errorf("validateSignStringRS256PKCS8(%s): expected %v, actual %v", tc.args, tc.valid, actual)
 		}
@@ -106,6 +109,7 @@ func TestArgsToStringToSign(t *testing.T) {
 
 	for _, tc := range tests {
 		actual := argsToStringToSign(tc.existingHeaders, tc.args)
+
 		if actual != tc.expected {
 			t.Errorf("argsToStringToSign(%s, %s): expected %s, actual %s", tc.existingHeaders, tc.args, tc.expected, actual)
 		}

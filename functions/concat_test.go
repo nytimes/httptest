@@ -60,6 +60,7 @@ func TestConcat(t *testing.T) {
 
 	for _, tc := range tests {
 		actual, _ := Concat(tc.existingHeaders, tc.args)
+
 		if actual != tc.expected {
 			t.Errorf("Concat(%v, %v): expected %v, actual %v", tc.existingHeaders, tc.args, tc.expected, actual)
 		}
