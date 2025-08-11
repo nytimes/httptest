@@ -15,12 +15,14 @@ ARG DRONE_COMMIT
 # Build application
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o /go/bin/httptest \
   -ldflags "-extldflags \"-static\" \
-  -X main.BuildBranch=${DRONE_BRANCH} \
-  -X main.BuildCommit=${DRONE_COMMIT:0:8} \
   -X main.BuildTime=$(date -Iseconds)"
 
-# Distroless; smaller than Alpine, has SSL included, works for multi-arch
-FROM gcr.io/distroless/static-debian12
+# We can't use distroless because some teams need to add a bearer token to
+# authenticate when the tests are run
+FROM alpine
+
+# Install dependencies
+RUN apk add --no-cache ca-certificates
 
 # Copy binary from build container
 COPY --from=build /go/bin/httptest /bin/httptest
