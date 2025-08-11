@@ -15,8 +15,6 @@ ARG DRONE_COMMIT
 # Build application
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -o /go/bin/httptest \
   -ldflags "-extldflags \"-static\" \
-  -X main.BuildBranch=${env.branch} \
-  -X main.BuildCommit=${env.commit_sha} \
   -X main.BuildTime=$(date -Iseconds)"
 
 # We can't use distroless because some teams need to add a bearer token to
