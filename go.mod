@@ -9,7 +9,7 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/pretty v1.2.1
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
