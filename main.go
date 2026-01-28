@@ -83,7 +83,6 @@ func main() {
 
 	// Get and apply config
 	config, err := ht.FromEnv()
-
 	if err != nil {
 		log.Fatalf("error: failed to parse config: %s", err)
 	}
@@ -95,11 +94,11 @@ func main() {
 	logger := buildLogger(config.Verbosity)
 	//nolint:errcheck
 	defer logger.Sync()
+
 	zap.ReplaceGlobals(logger)
 
 	// Parse and run tests
 	tests, err := ht.ParseAllTestsInDirectory(config.TestDirectory)
-
 	if err != nil {
 		log.Fatalf("error: failed to parse tests: %s", err)
 	}

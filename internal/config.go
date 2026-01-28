@@ -36,7 +36,6 @@ type Config struct {
 func FromEnv() (*Config, error) {
 	// Parse non-string values
 	concurrency, err := strconv.Atoi(getEnv("TEST_CONCURRENCY", "2"))
-
 	if err != nil {
 		return nil, fmt.Errorf("invalid concurrency value: %s", err)
 	}
@@ -46,7 +45,6 @@ func FromEnv() (*Config, error) {
 	}
 
 	verbosity, err := strconv.Atoi(getEnv("TEST_VERBOSITY", "0"))
-
 	if err != nil {
 		return nil, fmt.Errorf("invalid verbosity value: %s", err)
 	}
@@ -60,7 +58,6 @@ func FromEnv() (*Config, error) {
 	enableRetries := getEnv("ENABLE_RETRIES", "false") == "true"
 
 	retryCount, err := strconv.Atoi(getEnv("DEFAULT_RETRY_COUNT", "2"))
-
 	if err != nil {
 		return nil, fmt.Errorf("invalid default retry count value: %s", err)
 	}

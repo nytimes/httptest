@@ -108,10 +108,10 @@ func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 
 	for _, p := range files {
 		tests, err := parseTestFile(p)
-
 		if err != nil {
 			return nil, err
 		}
+
 		allTests = append(allTests, tests...)
 	}
 
@@ -121,14 +121,12 @@ func ParseAllTestsInDirectory(root string) ([]*Test, error) {
 func parseTestFile(filePath string) ([]*Test, error) {
 	// Read file into buffer
 	data, err := os.ReadFile(filePath)
-
 	if err != nil {
 		return nil, fmt.Errorf("ioutil: %v", err)
 	}
 
 	// Environment variable substitution
 	yamlString, err := envsubst.EvalEnv(string(data))
-
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse file %s: %v", filePath, err)
 	}

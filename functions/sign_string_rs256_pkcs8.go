@@ -23,7 +23,6 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 	}
 
 	key, passphrase, err := argsToKeyPassphrase(args)
-
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; %w", err)
 	}
@@ -36,7 +35,6 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 	// Parse the key, decrypting it if necessary
 	decryptedKey, err := pkcs8.ParsePKCS8PrivateKey(pemBlock.Bytes, []byte(passphrase))
-
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; unable to parse private key: %w", err)
 	}
@@ -55,7 +53,6 @@ func SignStringRS256PKCS8(existingHeaders map[string]string, args []string) (str
 
 	// Sign the hashed header with the RSA key
 	signature, err := rsa.SignPKCS1v15(nil, rsaKey, crypto.SHA256, hash[:])
-
 	if err != nil {
 		return "", fmt.Errorf("error calling SignStringRS256PKCS8; could not sign header: %w", err)
 	}
@@ -90,7 +87,6 @@ func argsToKeyPassphrase(args []string) (string, string, error) {
 	passphrase := args[1]
 
 	key, err := formatKey(args[0], passphrase != "")
-
 	if err != nil {
 		return "", "", err
 	}

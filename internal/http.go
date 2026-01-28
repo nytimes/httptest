@@ -66,7 +66,6 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		config.URL,
 		config.Body,
 	)
-
 	if err != nil {
 		return nil, nil, err
 	}
@@ -123,7 +122,6 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 
 	// Start sending request
 	resp, err := client.Do(req)
-
 	if err != nil {
 		return nil, nil, err
 	}
