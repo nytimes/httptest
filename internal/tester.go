@@ -45,7 +45,6 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 
 	// Check test conditions and skip if not met
 	conditionsMet, err := validateConditions(test)
-
 	if err != nil {
 		result.Errors = append(result.Errors, err)
 		return result
@@ -101,7 +100,6 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		result.Retries = i
 
 		resp, respBody, err := SendHTTPRequest(reqConfig)
-
 		if err != nil {
 			result.Errors = append(result.Errors, err)
 			continue
@@ -192,7 +190,6 @@ func validateConditions(test *Test) (bool, error) {
 	// Environment variable
 	for key, pattern := range test.Conditions.Env {
 		re, err := regexp.Compile("(?i)" + pattern)
-
 		if err != nil {
 			return false, fmt.Errorf("%s", err.Error())
 		}
@@ -274,7 +271,6 @@ func validateResponseHeaderPatterns(response *http.Response, patterns map[string
 	// Patterns
 	for header, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
-
 		if err != nil {
 			errors = append(errors, fmt.Errorf("invalid test pattern `%s`: %s", pattern, err.Error()))
 			continue
@@ -322,7 +318,6 @@ func validateResponseBody(test *Test, _ *http.Response, body []byte) []error {
 
 	for _, pattern := range patterns {
 		re, err := regexp.Compile("(?i)" + pattern)
-
 		if err != nil {
 			errors = append(errors, fmt.Errorf("%s", err.Error()))
 			continue

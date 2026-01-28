@@ -17,7 +17,7 @@ linters:
     - unconvert
     - unparam
     - unused
-    - wsl
+    - wsl_v5
   settings:
     errcheck:
       check-type-assertions: false
@@ -38,12 +38,15 @@ linters:
       ignored-numbers:
         - "2"
         - "0644"
-
-    wsl:
-      strict-append: false
-      allow-separated-leading-comment: true
-      allow-cuddle-declarations: true
-      force-short-decl-cuddling: true
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+      enable:
+        - assign-exclusive
+      disable:
+        - append
+        - decl
   exclusions:
     generated: lax
     presets:

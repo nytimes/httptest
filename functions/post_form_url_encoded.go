@@ -47,13 +47,11 @@ func PostFormURLEncoded(existingHeaders map[string]string, args []string) (strin
 	client.Timeout = time.Second * timeoutSeconds
 
 	response, err := client.PostForm(endpoint, requestBody)
-
 	if err != nil {
 		return "", err
 	}
 
 	responseBody, err := io.ReadAll(response.Body)
-
 	if err != nil {
 		return "", err
 	}

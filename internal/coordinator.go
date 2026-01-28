@@ -62,6 +62,7 @@ func RunTests(tests []*Test, config *Config) bool {
 					PrintTestResult(t, result)
 				}
 			}
+
 			mux.Unlock()
 		}(test)
 	}

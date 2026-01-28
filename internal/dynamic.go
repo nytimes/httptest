@@ -34,7 +34,6 @@ func ProcessDynamicHeaders(dynamicHeaders []DynamicHeader, allHeaders map[string
 		}
 
 		value, err := dhfn(allHeaders, dynamicHeader.Args)
-
 		if err != nil {
 			return err
 		}
