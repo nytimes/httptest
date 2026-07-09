@@ -55,7 +55,7 @@ runs:
       working-directory: ${{ github.action_path }}
       env:
         TEST_HOST: ${{ inputs.host }}
-        TEST_DIRECTORY: ${{ inputs.directory }}
+        TEST_DIRECTORY: ${{ github.workspace }}/${{ inputs.directory }}
         TEST_CONCURRENCY: ${{ inputs.concurrency }}
         TEST_DNS_OVERRIDE: ${{ inputs.dns-override }}
         TEST_PRINT_FAILED_ONLY: ${{ inputs.print-failed-only }}
