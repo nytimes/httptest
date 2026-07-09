@@ -73,14 +73,69 @@ Examples
 
 - GitHub Actions
 
-  ```hcl
-  action "httptest" {
-    uses = "docker://nytimes/httptest"
-    env = {
-      TEST_HOST = "example.com"
-    }
-  }
-  ```
+  See [Use as a GitHub Action](#use-as-a-github-action) below.
+
+### Use as a GitHub Action
+
+This repository is also a native GitHub Action. Check out your repository (so
+your test files are available) and add a step that uses `nytimes/httptest`:
+
+```yml
+name: HTTP tests
+
+on: [push]
+
+jobs:
+  httptest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run HTTP tests
+        uses: nytimes/httptest@v1
+        with:
+          host: example.com
+          directory: tests
+```
+
+#### Inputs
+
+All inputs are optional and map to the environment variables documented in
+[Configurations](#configurations).
+
+| Input               | Env var                  | Default | Description                                                             |
+| ------------------- | ------------------------ | ------- | ----------------------------------------------------------------------- |
+| `host`              | `TEST_HOST`              |         | Host to test. Overridable by `request.host` in individual tests.        |
+| `directory`         | `TEST_DIRECTORY`         | `tests` | Directory (relative to the repo root) containing test definition files. |
+| `concurrency`       | `TEST_CONCURRENCY`       | `2`     | Maximum number of concurrent requests at a time.                        |
+| `dns-override`      | `TEST_DNS_OVERRIDE`      |         | Override the IP address for `host`. Requires `host` to be set.          |
+| `print-failed-only` | `TEST_PRINT_FAILED_ONLY` | `false` | Only print failed tests.                                                |
+| `verbosity`         | `TEST_VERBOSITY`         | `0`     | Increase logging output for tests.                                      |
+| `enable-retries`    | `ENABLE_RETRIES`         | `false` | Enable retrying requests if a test does not succeed.                    |
+| `retry-count`       | `DEFAULT_RETRY_COUNT`    | `2`     | Number of retries. Only applied when `enable-retries` is `true`.        |
+
+The action fails the workflow step when any test fails.
+
+#### Secrets and environment variable substitution
+
+For [environment variable substitution](#environment-variable-substitution) and
+`conditions.env` in your test files, set the variables via `env` at the job (or
+workflow) level so they are available to the action's steps:
+
+```yml
+jobs:
+  httptest:
+    runs-on: ubuntu-latest
+    env:
+      TEST_ENV: stg
+      SECRET_AUTH_TOKEN: ${{ secrets.SECRET_AUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run HTTP tests
+        uses: nytimes/httptest@v1
+        with:
+          host: example.com
+```
 
 ### Configurations
 
