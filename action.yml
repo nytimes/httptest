@@ -1,0 +1,66 @@
+# See https://docs.github.com/actions/creating-actions/metadata-syntax-for-github-actions
+name: 'httptest'
+description: 'A simple concurrent HTTP testing tool - run declarative HTTP tests against a host.'
+author: 'The New York Times Company'
+
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+
+inputs:
+  host:
+    description: 'Host to test. Can be overridden by request.host of individual test definitions.'
+    required: false
+    default: ''
+  directory:
+    description: 'Directory (relative to the repository root) that contains the test definition YML/YAML files.'
+    required: false
+    default: 'tests'
+  concurrency:
+    description: 'Maximum number of concurrent requests at a time.'
+    required: false
+    default: '2'
+  dns-override:
+    description: 'Override the IP address for the host. Requires host to be set.'
+    required: false
+    default: ''
+  print-failed-only:
+    description: 'Only print failed tests. Valid values: "true" or "false".'
+    required: false
+    default: 'false'
+  verbosity:
+    description: 'Increase logging output for tests.'
+    required: false
+    default: '0'
+  enable-retries:
+    description: 'Enable retrying requests if a test does not succeed. Valid values: "true" or "false".'
+    required: false
+    default: 'false'
+  retry-count:
+    description: 'Number of times to retry a test request. Only applied when enable-retries is "true".'
+    required: false
+    default: '2'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+      with:
+        go-version-file: ${{ github.action_path }}/go.mod
+        cache-dependency-path: ${{ github.action_path }}/go.sum
+
+    - name: Run httptest
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        TEST_HOST: ${{ inputs.host }}
+        TEST_DIRECTORY: ${{ github.workspace }}/${{ inputs.directory }}
+        TEST_CONCURRENCY: ${{ inputs.concurrency }}
+        TEST_DNS_OVERRIDE: ${{ inputs.dns-override }}
+        TEST_PRINT_FAILED_ONLY: ${{ inputs.print-failed-only }}
+        TEST_VERBOSITY: ${{ inputs.verbosity }}
+        ENABLE_RETRIES: ${{ inputs.enable-retries }}
+        DEFAULT_RETRY_COUNT: ${{ inputs.retry-count }}
+        CGO_ENABLED: '0'
+      run: go run "${{ github.action_path }}"
