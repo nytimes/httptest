@@ -26,10 +26,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// retryBackoff is the delay between retry attempts, giving the origin/edge
-// time to recover instead of hammering it with back-to-back requests.
-const retryBackoff = 2 * time.Second
-
 // TestResult stores results of a single test
 type TestResult struct {
 	Retries int
@@ -37,8 +33,10 @@ type TestResult struct {
 	Errors  []error
 }
 
-// RunTest runs a single test
-func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
+// RunTest runs a single test, sleeping retryBackoff between retry attempts to
+// give the origin/edge time to recover instead of hammering it with
+// back-to-back requests.
+func RunTest(test *Test, defaultHost string, maxRetries int, retryBackoff time.Duration) *TestResult {
 	result := &TestResult{}
 
 	// Validate test and assign default values

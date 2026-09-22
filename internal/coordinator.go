@@ -39,7 +39,7 @@ func RunTests(tests []*Test, config *Config) bool {
 				maxRetries = config.RetryCount
 			}
 
-			result := RunTest(t, config.Host, maxRetries)
+			result := RunTest(t, config.Host, maxRetries, config.RetryBackoff)
 
 			// Acquire lock before accessing shared variables and writing output.
 			// Code in critical section should not perform network I/O.

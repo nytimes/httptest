@@ -18,7 +18,12 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 )
+
+// DefaultRetryBackoff is the delay between retry attempts used when
+// RETRY_BACKOFF_SECONDS is not set.
+const DefaultRetryBackoff = 2 * time.Second
 
 // Config stores application configuration
 type Config struct {
@@ -30,6 +35,7 @@ type Config struct {
 	Verbosity            int
 	EnableRetries        bool
 	RetryCount           int
+	RetryBackoff         time.Duration
 }
 
 // FromEnv returns config read from environment variables
@@ -66,6 +72,15 @@ func FromEnv() (*Config, error) {
 		return nil, fmt.Errorf("invalid default retry count value: %d", retryCount)
 	}
 
+	retryBackoffSeconds, err := strconv.Atoi(getEnv("RETRY_BACKOFF_SECONDS", strconv.Itoa(int(DefaultRetryBackoff.Seconds()))))
+	if err != nil {
+		return nil, fmt.Errorf("invalid retry backoff seconds value: %s", err)
+	}
+
+	if retryBackoffSeconds < 0 {
+		return nil, fmt.Errorf("invalid retry backoff seconds value: %d", retryBackoffSeconds)
+	}
+
 	return &Config{
 		Concurrency:          concurrency,
 		Host:                 getEnv("TEST_HOST", ""),
@@ -75,6 +90,7 @@ func FromEnv() (*Config, error) {
 		Verbosity:            verbosity,
 		EnableRetries:        enableRetries,
 		RetryCount:           retryCount,
+		RetryBackoff:         time.Duration(retryBackoffSeconds) * time.Second,
 	}, nil
 }
 
