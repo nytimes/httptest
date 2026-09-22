@@ -16,14 +16,11 @@ package internal
 
 import (
 	"bytes"
-	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
-
-	"github.com/hashicorp/go-retryablehttp"
 )
 
 // HTTPRequestConfig type
@@ -37,8 +34,6 @@ type HTTPRequestConfig struct {
 	Body                 io.Reader
 	Timeout              time.Duration
 	SkipCertVerification bool
-	MaxRetries           int
-	RetryCallback        func(ctx context.Context, resp *http.Response, err error) (bool, error)
 }
 
 // SendHTTPRequest sends an HTTP request and returns response body and status
@@ -61,7 +56,7 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 	}
 
 	// Create request
-	req, err := retryablehttp.NewRequest(
+	req, err := http.NewRequest(
 		config.Method,
 		config.URL,
 		config.Body,
@@ -97,27 +92,15 @@ func SendHTTPRequest(config *HTTPRequestConfig) (*http.Response, []byte, error) 
 		req.Header.Add(k, v)
 	}
 
-	client := retryablehttp.Client{
-		HTTPClient: &http.Client{
-			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-			Transport: &http.Transport{
-				//nolint:gosec
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
-			},
-			Timeout: config.Timeout * time.Second,
+	client := &http.Client{
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
 		},
-	}
-
-	// Enable retries
-	if config.MaxRetries > 0 {
-		client.RetryMax = config.MaxRetries
-		client.CheckRetry = config.RetryCallback
-		client.Backoff = retryablehttp.DefaultBackoff
-	} else {
-		// Don't retry requests
-		client.CheckRetry = func(_ context.Context, _ *http.Response, _ error) (bool, error) { return false, nil }
+		Transport: &http.Transport{
+			//nolint:gosec
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipCertVerification},
+		},
+		Timeout: config.Timeout * time.Second,
 	}
 
 	// Start sending request

@@ -40,6 +40,10 @@ inputs:
     description: 'Number of times to retry a test request. Only applied when enable-retries is "true".'
     required: false
     default: '2'
+  retry-backoff-seconds:
+    description: 'Delay, in seconds, before each retry attempt. Only applied when enable-retries is "true".'
+    required: false
+    default: '2'
 
 runs:
   using: 'composite'
@@ -62,5 +66,6 @@ runs:
         TEST_VERBOSITY: ${{ inputs.verbosity }}
         ENABLE_RETRIES: ${{ inputs.enable-retries }}
         DEFAULT_RETRY_COUNT: ${{ inputs.retry-count }}
+        RETRY_BACKOFF_SECONDS: ${{ inputs.retry-backoff-seconds }}
         CGO_ENABLED: '0'
       run: go run "${{ github.action_path }}"

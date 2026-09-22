@@ -15,13 +15,13 @@
 package internal
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -33,8 +33,10 @@ type TestResult struct {
 	Errors  []error
 }
 
-// RunTest runs a single test
-func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
+// RunTest runs a single test, sleeping retryBackoff between retry attempts to
+// give the origin/edge time to recover instead of hammering it with
+// back-to-back requests.
+func RunTest(test *Test, defaultHost string, maxRetries int, retryBackoff time.Duration) *TestResult {
 	result := &TestResult{}
 
 	// Validate test and assign default values
@@ -63,23 +65,6 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		body = strings.NewReader(test.Request.Body)
 	}
 
-	retryCallback := func(_ context.Context, resp *http.Response, inErr error) (bool, error) {
-		if inErr != nil {
-			// retry is there is an error with the request
-			return true, nil
-		}
-
-		errs := validateResponseStatus(test, resp)
-
-		if len(errs) >= 1 {
-			// retry if there is an error
-			return true, nil
-		}
-
-		// stop retrying
-		return false, nil
-	}
-
 	reqConfig := &HTTPRequestConfig{
 		Method:               test.Request.Method,
 		URL:                  url,
@@ -87,8 +72,6 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 		Body:                 body,
 		Timeout:              60,
 		SkipCertVerification: test.SkipCertVerification,
-		RetryCallback:        retryCallback,
-		MaxRetries:           maxRetries,
 	}
 
 	zap.L().Info("sending request",
@@ -96,6 +79,10 @@ func RunTest(test *Test, defaultHost string, maxRetries int) *TestResult {
 	)
 
 	for i := 0; i <= maxRetries; i++ {
+		if i > 0 {
+			time.Sleep(retryBackoff)
+		}
+
 		result.Errors = []error{}
 		result.Retries = i
 

@@ -113,6 +113,7 @@ All inputs are optional and map to the environment variables documented in
 | `verbosity`         | `TEST_VERBOSITY`         | `0`     | Increase logging output for tests.                                      |
 | `enable-retries`    | `ENABLE_RETRIES`         | `false` | Enable retrying requests if a test does not succeed.                    |
 | `retry-count`       | `DEFAULT_RETRY_COUNT`    | `2`     | Number of retries. Only applied when `enable-retries` is `true`.        |
+| `retry-backoff-seconds` | `RETRY_BACKOFF_SECONDS` | `2` | Delay, in seconds, before each retry. Only applied when `enable-retries` is `true`. |
 
 The action fails the workflow step when any test fails.
 
@@ -166,6 +167,9 @@ environment variables:
 - `DEFAULT_RETRY_COUNT`: Specify the number of times to retry a test request if
    the initial request does not succeed. Only applied if `ENABLE_RETRIES` is set
    to `true` Defaults: `2`.
+
+- `RETRY_BACKOFF_SECONDS`: Specify the delay, in seconds, before each retry
+   attempt. Only applied if `ENABLE_RETRIES` is set to `true`. Defaults: `2`.
 
 ### Environment variable substitution
 
